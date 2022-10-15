@@ -31,7 +31,6 @@ class PriorityQueue:
         self._data_set.remove(item)
         return item
 
-
 class Multiset:
     """Multiset"""
 
