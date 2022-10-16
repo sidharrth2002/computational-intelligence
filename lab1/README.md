@@ -66,12 +66,12 @@ An initial idea I had was to build a fully connected graph where each subset is 
 
 ```mermaid
 graph TD;
-    [2, 4, 5]-->[2, 3, 1];
-    [2, 4, 5]-->[1, 2]
-    [1, 2]-->[2, 4, 5];
-    [1, 2]-->[2, 3, 1];
-    [2, 3, 1]-->[2, 4, 5];
-    [2, 3, 1]-->[1, 2];
+    \[2, 4, 5\]-->\[2, 3, 1\];
+    \[2, 4, 5\]-->\[1, 2\]
+    \[1, 2\]-->\[2, 4, 5\];
+    \[1, 2\]-->\[2, 3, 1\];
+    \[2, 3, 1\]-->\[2, 4, 5\];
+    \[2, 3, 1\]-->\[1, 2\];
 ```
 
 The heuristic function is slightly different:
