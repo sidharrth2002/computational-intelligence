@@ -64,14 +64,16 @@ The A* algorithm is a graph traversal algorithm that uses a priority queue to tr
 
 An initial idea I had was to build a fully connected graph where each subset is in it's own node.
 
+Given A = $[2, 4, 5]$, B = $[2, 3, 1]$ and C = $[1, 2]$,
+
 ```mermaid
 graph TD;
-    "[2, 4, 5]"-->"[2, 3, 1]";
-    "[2, 4, 5]"-->"[1, 2]"
-    "[1, 2]"-->"[2, 4, 5]";
-    "[1, 2]"-->"[2, 3, 1]";
-    "[2, 3, 1]"-->"[2, 4, 5]";
-    "[2, 3, 1]"-->"[1, 2]";
+    A-->B;
+    A-->C;
+    C-->A;
+    C-->B;
+    B->A;
+    B-->C;
 ```
 
 The heuristic function is slightly different:
