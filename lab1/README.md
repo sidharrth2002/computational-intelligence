@@ -72,7 +72,7 @@ graph TD;
     A-->C;
     C-->A;
     C-->B;
-    B->A;
+    B-->A;
     B-->C;
 ```
 
