@@ -43,6 +43,8 @@ In real-life scenarios, the cost depends on the relative price of visiting a nod
 
 $$f_i = 1 / |n_i - S_e|$$
 
+The algorithm for this solution was referenced from GeeksForGeeks.
+
 ## A* Traversal
 
 The A* algorithm requires a monotonic heuristic function that symbolises the remaining distance between the current state and the goal state. In the case of the set cover problem, the heuristic function is the number of elements that are not covered by the current solution set. The algorithm is implemented using a priority queue. There are two ways of implementing A*, we can either:
