@@ -2,7 +2,7 @@
 
 > Sidharrth Nagappan, 2022
 
-The set cover problem is a combinatorial optimization problem. The problem is to find the smallest set of sets that covers all elements of a given universe. For example, suppose we have a universe of 10 elements and 5 sets, each of which contains a subset of the universe. The goal is to find the smallest set of sets that covers all elements of the universe.
+The set cover problem is a combinatorial optimization problem. The problem is to find the smallest set of sets that covers all elements of a given N-range. For example, suppose we have a range of 15 elements and 6 sets, each of which contains a subset of the universe. The goal is to find the smallest combination of sets that covers all elements of the range.
 
 Since the problem is NP-hard, we have to use a heuristic algorithm to solve and there exists no theoretically polynomial time algorithm.
 
