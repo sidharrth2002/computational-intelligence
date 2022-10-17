@@ -82,6 +82,49 @@ $$h_i = len(s_i) - len(s_i \cap S_e)$$
 
 where $s_i$ is the current subset and $S_e$ is the expected solution. It takes into account both the length of the new subset (to minimise final weight) and the number of undiscovered elements that it can contribute.
 
+### Provisional Results
+
+### Smart Greedy (With Heuristic Guessing)
+
+| N | w | bloat | visited nodes |
+|---|---|-------|---------------|
+| 5 | 5 | 0% | 3 |
+| 10 | 11 | 10% | 3 |
+| 50 | 99 | 98% | 5 |
+| 100 | 192 | 92% | 5 |
+| 500 | 1313 | 163% | 7 |
+| 1000 | 3092 | 209% | 8 |
+
+#### A* Traversal
+| N | w | bloat | visited nodes | visited states |
+|---|---|-------|---------------|----------------|
+| 5 | 5 | 0% | 4 | 59 |
+| 10 | 10 | 0% | 5 | 191
+| 20 | 23 | 15% | 1184 | 40216 |
+| 50 | (blow up) | (blow up) | (blow up) | (blow up) |
+
+### A* Traversal Using Uniform Cost of 1 (Not affected by subset length)
+
+| N | w | bloat | visited nodes | visited states |
+|---|---|-------|---------------|----------------|
+| 5 | 5 | 0% | 3 | 34 |
+| 10 | 14 | 40% | 4 | 141 |
+| 20 | 35 | 75% | 5 | 134 |
+| 50 | 85 | 70% | 5 | 134 |
+| 100 | 203 | 103% | 6 | 2127 |
+| 500 | 1430 | 186% | 8 | 12652 |
+| 1000 | 3268 | 227% | 9 | 28941 |
+
+### A* Traversal Using a Fully Connected Graph (Possibly Overcomplicating Things)
+
+| N | w | bloat |
+|---|---|-------|
+| 5 | 5 | 0% |
+| 10 | 10 | 10% |
+| 20 | 33 | 65% |
+| 50 | 157 | 214% |
+| 100 | 297 | 197% |
+
 ### Disclaimers
 
 I worked with Erik Bengsston and Ricardo Nicida.

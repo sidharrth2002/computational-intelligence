@@ -41,8 +41,8 @@ class Graph:
         num_new_elements = self.get_number_of_elements_not_in_second_list(self.list_values[n], self.discovered_elements)
         # if self.list_values[n] in self.final_list:
         #     return 1000
-        return num_new_elements
-        # return self.H[n] / (num_new_elements + 1)
+        # return num_new_elements
+        return self.H[n] - num_new_elements
 
     def get_node_with_least_h(self):
         min_h = float("inf")
@@ -66,7 +66,7 @@ class Graph:
     # final_list = [[4, 5], [1]]
     def are_we_done(self):
         # flattened_list = list(itertools.chain.from_iterable(self.final_list))
-        for i in range(self.N):
+        for i in itertools.chain.from_iterable(self.list_values.values()):
             if i not in self.discovered_elements:
                 return False
         print("We are done")
@@ -105,20 +105,18 @@ class Graph:
 
             # find a node with the highest value of f() - evaluation function
             for v in open_list:
-                if n == None or g[v] + self.h(v) > g[n] + self.h(n):
+                if n == None or g[v] + self.h(v) < g[n] + self.h(n):
                     n = v;
 
             if n == None:
                 print('Path does not exist!')
                 return None
 
-            print(f"Visiting node: {n}")
             self.final_list.append(self.list_values[n])
             # self.discovered_elements.union(self.list_values[n])
             # add list_values[n] to discovered_elements
             for i in self.list_values[n]:
                 self.discovered_elements.add(i)
-            print(len(self.discovered_elements))
 
             # if the current node is the stop_node
             # then we begin reconstructin the path from it to the start_node
@@ -161,11 +159,11 @@ class Graph:
                         g[m] = g[n] + weight
                         parents[m] = n
 
-                        # if m in closed_list:
-                        #     closed_list.remove(m)
-                        #     # open_list.add(m)
-                        #     open_list = self.insert_unique_element_into_list(open_list, m)
-                        #     open_list = sorted(open_list, key=self.h)
+                        if m in closed_list:
+                            closed_list.remove(m)
+                            # open_list.add(m)
+                            open_list = self.insert_unique_element_into_list(open_list, m)
+                            open_list = sorted(open_list, key=self.h)
 
 
             # remove n from the open_list, and add it to closed_list
@@ -214,7 +212,7 @@ N = 1000
 #     'C': [('A', len(list_values['A'])), ('B', len(list_values['B'])), ('D', len(list_values['D']))],
 #     'D': [('A', len(list_values['A'])), ('B', len(list_values['B'])), ('C', len(list_values['C']))]
 # }
-for N in [20]:
+for N in [5, 10, 20, 50, 100]:
     list_of_lists = problem(N, 42)
     list_values = {}
     for i in range(len(list_of_lists)):
