@@ -50,6 +50,8 @@ The A* algorithm requires a monotonic heuristic function that symbolises the rem
 1. build a fully connected graph and use an open and closed list to traverse
 2. use a priority queue
 
+We can either use a constant cost (as used earlier) or vary it based on the length of the upcoming set. The latter is computationally expensive and slow.
+
 For learning purposes, I will implement both, even though the second method is more efficient.
 
 ### How does an A* traversal work?
