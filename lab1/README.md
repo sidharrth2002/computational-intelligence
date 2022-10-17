@@ -104,7 +104,7 @@ where $s_i$ is the current subset and $S_e$ is the expected solution. It takes i
 |---|---|-------|---------------|----------------|
 | 5 | 5 | 0% | 4 | 59 |
 | 10 | 10 | 0% | 5 | 191
-| 20 | 23 | 15% | 1184 | 40216 |
+| 20 | 23 | 15% | 934 | 40216 |
 | 50 | (blow up) | (blow up) | (blow up) | (blow up) |
 
 ### A* Traversal Using Uniform Cost of 1 (Not affected by subset length)
