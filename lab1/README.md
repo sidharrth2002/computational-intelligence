@@ -86,6 +86,8 @@ $$h_i = len(s_i) - len(s_i \cap S_e)$$
 
 where $s_i$ is the current subset and $S_e$ is the expected solution. It takes into account both the length of the new subset (to minimise final weight) and the number of undiscovered elements that it can contribute.
 
+We can also immediately return a very large heuristic value such as 100 in the case of duplicating elements in the subset or in any situation where we want a certain node to be immediately skipped.
+
 ### Provisional Results
 
 ### Smart Greedy (With Heuristic Guessing)
@@ -104,7 +106,7 @@ where $s_i$ is the current subset and $S_e$ is the expected solution. It takes i
 |---|---|-------|---------------|----------------|
 | 5 | 5 | 0% | 4 | 59 |
 | 10 | 10 | 0% | 5 | 191
-| 20 | 23 | 15% | 1184 | 40216 |
+| 20 | 23 | 15% | 934 | 40216 |
 | 50 | (blow up) | (blow up) | (blow up) | (blow up) |
 
 ### A* Traversal Using Uniform Cost of 1 (Not affected by subset length)
