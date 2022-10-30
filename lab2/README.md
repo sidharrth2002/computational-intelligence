@@ -1,0 +1,1 @@
+In this attempt, we will use a genetic algorithm to solve the set-covering problem. 
