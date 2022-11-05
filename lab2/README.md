@@ -178,3 +178,7 @@ def rank_selection(population):
 #### Vanilla Tournament
 
 Randomly select $k$ elements and return the fittest one.
+
+### What's Next?
+
+Improve plateau detection and randomised mutation thresholds.
