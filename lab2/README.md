@@ -34,15 +34,16 @@ After multiple trials, the best fitness function is the simplest, which is simpl
 
 ### Results
 
-The following are the results of the algorithm after 1000 generations:
+The following are the results of the algorithm after 1000 generations (only the best results are reported):
 
 | N | W |
 | _ | _ |
 | 5 | . |
 | 10 | 10 |
 | 20 | 24 |
-| 500 | 1684 |
-| 1000 | 3860 |
+| 50 | 100 |
+| 500 | 1639 |
+| 1000 | 3624 |
 
 One thing to note is that lower values of $N$ require a smaller value of $N$ requires larger population values. Whereas, with larger values of $N$, a smaller population and offspring size is sufficient. Early stopping is used to detect the plateau, so the algorithm doesn't run endlessly. However, the minima is often reached in less than 100 generations.
 
@@ -131,6 +132,8 @@ def inversion_mutation(genome):
 ```
 
 ### Potential Types of Selections
+
+The best performing is still a standard tournament but other possibilities were also implemented and tested.
 
 #### Roulette Wheel Selection
 
