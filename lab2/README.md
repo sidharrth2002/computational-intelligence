@@ -37,7 +37,7 @@ After multiple trials, the best fitness function is the simplest, which is simpl
 The following are the results of the algorithm after 1000 generations (only the best results are reported):
 
 | N | W |
-| _ | _ |
+| - | - |
 | 5 | . |
 | 10 | 10 |
 | 20 | 24 |
