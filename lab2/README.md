@@ -48,6 +48,10 @@ The following are the results of the algorithm after 1000 generations (only the 
 
 One thing to note is that lower values of $N$ require a smaller value of $N$ requires larger population values. Whereas, with larger values of $N$, a smaller population and offspring size is sufficient. Early stopping is used to detect the plateau, so the algorithm doesn't run endlessly. However, the minima is often reached in less than 100 generations.
 
+### Adjusting Mutation Rate
+
+Based on the rate of change of the fitness, the mutation rate (number of elements in genome to mutate) is adjusted.
+
 ### Potential Types of Mutations
 
 #### Flip Mutation
