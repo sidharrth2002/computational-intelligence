@@ -10,6 +10,12 @@ The final product should be a list of 0s and 1s that indicate which lists should
 1. Mutation: randomly change a 0 to a 1 or vice versa
 2. Crossover: randomly select a point in the list and swap the values after that point
 
+### Representing the Problem
+
+We will represent the problem as a list of 0s and 1s. The length of the list will be the number of lists we have. The 0s and 1s will indicate whether or not the list should be included in the final set.
+
+The objective of the algorithm is to find an optimal (or at least as optimal as possible) set of 0s and 1s that will cover all the elements in the list.
+
 ### Assessing Fitness
 
 Based on knowledge obtained in previous labs, the heuristic function evolved and these were the factors I considered:
@@ -26,7 +32,20 @@ The following equations were formulated:
 
 After multiple trials, the best fitness function is the simplest, which is simply the number of distinct elements.
 
-###
+### Results
+
+The following are the results of the algorithm after 1000 generations (only the best results are reported):
+
+| N | W |
+| _ | _ |
+| 5 | . |
+| 10 | 10 |
+| 20 | 24 |
+| 50 | 100 |
+| 500 | 1639 |
+| 1000 | 3624 |
+
+One thing to note is that lower values of $N$ require a smaller value of $N$ requires larger population values. Whereas, with larger values of $N$, a smaller population and offspring size is sufficient. Early stopping is used to detect the plateau, so the algorithm doesn't run endlessly. However, the minima is often reached in less than 100 generations.
 
 ### Potential Types of Mutations
 
@@ -113,6 +132,8 @@ def inversion_mutation(genome):
 ```
 
 ### Potential Types of Selections
+
+The best performing is still a standard tournament but other possibilities were also implemented and tested.
 
 #### Roulette Wheel Selection
 
