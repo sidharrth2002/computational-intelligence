@@ -42,6 +42,7 @@ The following are the results of the algorithm after 1000 generations (only the 
 | 10 | 10 |
 | 20 | 24 |
 | 50 | 100 |
+| 100 | 197 |
 | 500 | 1639 |
 | 1000 | 3624 |
 
