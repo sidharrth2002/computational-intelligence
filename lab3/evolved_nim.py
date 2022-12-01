@@ -109,31 +109,34 @@ class BrilliantEvolvedAgent:
 
         return stats
 
-    def strategy(self, nim: Nim):
+    def strategy(self, genome: dict):
         '''
         Returns the best move to make based on the statistics
         '''
-        stats = self.statistics(nim)
-        if stats['active_rows_number'] == 1:
-            # take all sticks from the only row
-            return (0, stats['shortest_row'])
-        elif stats['active_rows_number'] == 2:
-            if stats['row_with_1_stick_bool']:
-                # take all sticks from the row with 1 stick
-                return Nimply(stats['possible_moves'][0][0], stats['possible_moves'][0][1])
+        def evolvable(nim: Nim):
+            stats = self.statistics(nim)
+            if stats['active_rows_number'] == 1:
+                # take all sticks from the only row
+                return (0, stats['shortest_row'])
+            elif stats['active_rows_number'] == 2:
+                if stats['row_with_1_stick_bool']:
+                    # take all sticks from the row with 1 stick
+                    return Nimply(stats['possible_moves'][0][0], stats['possible_moves'][0][1])
+                else:
+                    # take all sticks from the largest row
+                    return Nimply(stats['longest_row'][0], stats['longest_row'][1])
+            elif stats['active_rows_number'] == 3:
+                if stats['shortest_row'] == stats['nim_sum']:
+                    # take all sticks from the smallest row
+                    return Nimply(stats['shortest_row'][0], stats['shortest_row'][1])
+                else:
+                    # take all sticks from the largest row
+                    return Nimply(stats['longest_row'][0], stats['longest_row'][1])
             else:
-                # take all sticks from the largest row
-                return Nimply(stats['longest_row'][0], stats['longest_row'][1])
-        elif stats['active_rows_number'] == 3:
-            if stats['shortest_row'] == stats['nim_sum']:
-                # take all sticks from the smallest row
+                # take all sticks from the smallest row until it is the same size as the other rows
                 return Nimply(stats['shortest_row'][0], stats['shortest_row'][1])
-            else:
-                # take all sticks from the largest row
-                return Nimply(stats['longest_row'][0], stats['longest_row'][1])
-        else:
-            # take all sticks from the smallest row until it is the same size as the other rows
-            return Nimply(stats['shortest_row'][0], stats['shortest_row'][1])
+
+        return evolvable
 
     def random_agent(self, nim: Nim):
         '''
@@ -147,4 +150,19 @@ class BrilliantEvolvedAgent:
         Calculate fitness by playing the genome's strategy against a random agent
         (cannot use nim sum agent as it is too good)
         '''
+        wins = 0
+        for i in range(3):
+            nim = Nim(3)
+            player = 0
+            while not nim.goal():
+                if player == 0:
+                    nim.nimming_remove(*self.strategy(nim))
+                    player = 1
+                else:
+                    nim.nimming_remove(*self.random_agent(nim))
+                    player = 0
 
+            winner = player
+            if winner == 0:
+                wins += 1
+        return wins
