@@ -69,6 +69,22 @@ class BrilliantEvolvedAgent:
             population.append(individual)
         return population
 
+    def crossover(self, parent1, parent2):
+        '''
+        Crossover function to combine two parents into a child
+        '''
+        child = {}
+        for key in parent1.keys():
+            child[key] = random.choice([parent1[key], parent2[key]])
+        return child
+
+    def mutate(self, genome):
+        '''
+        Mutate the genome by changing one of the rules (can end up in something stupid like removing more sticks than there are)
+        '''
+        rule = random.choice(list(genome.keys()))
+        genome[rule] = random.randint(1, 10)
+
     def statistics(self, nim: Nim):
         '''
         Similar to Squillero's cooked function to get possible moves
