@@ -302,6 +302,23 @@ class BrilliantEvolvedAgent:
         return best_strategy
 
 nim = Nim(3)
+orig = nim.rows
 brilliantagent = BrilliantEvolvedAgent()
 best_strategy = brilliantagent.learn(nim=nim)
 engine = brilliantagent.strategy(best_strategy)
+
+# play against random
+player = 0
+while not nim.goal():
+    if player == 0:
+        move = engine(nim)
+        print('move of player 1: ', move)
+        nim.nimming_remove(*move)
+        player = 1
+        print("After Player 1 made move: ", nim.rows)
+    else:
+        move = brilliantagent.random_agent(nim)
+        print('move of player 2: ', move)
+        nim.nimming_remove(*move)
+        player = 0
+        print("After Player 2 made move: ", nim.rows)
