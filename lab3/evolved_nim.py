@@ -117,6 +117,7 @@ class BrilliantEvolvedAgent:
         '''
         rule = random.choice(list(genome.rules.keys()))
         genome.rules[rule] = [random.randint(0, 1), random.randint(0, self.nim_size * 2)]
+        return genome
         # rule = random.choice(list(genome.keys()))
         # genome[rule] = random.randint(1, 10)
 
@@ -278,7 +279,7 @@ class BrilliantEvolvedAgent:
         '''
         Select the best genomes from the population
         '''
-        return sorted(population, key=lambda x: x['fitness'], reverse=True)[:num_survivors]
+        return sorted(population, key=lambda x: x.fitness, reverse=True)[:num_survivors]
 
     def learn(self, population_size=100, mutation_rate=0.1, crossover_rate=0.7, nim: Nim = None):
         initial_population = self.init_population(population_size, nim)
@@ -288,12 +289,14 @@ class BrilliantEvolvedAgent:
             # print(f'Generation {i}')
             new_offspring = []
             for j in range(self.OFFSPRING_SIZE):
-                parent1 = self.select_parent(initial_population)
-                parent2 = self.select_parent(initial_population)
+                parent1 = random.choice(initial_population)
+                parent2 = random.choice(initial_population)
                 child = self.crossover(parent1, parent2, crossover_rate)
-                child = self.mutate(child, mutation_rate)
+                child = self.mutate(child)
                 new_offspring.append(child)
             initial_population += new_offspring
+            for genome in initial_population:
+                print(genome.rules)
             initial_population = self.select_survivors(initial_population, population_size)
         best_strategy = initial_population[0]
         return best_strategy
@@ -301,4 +304,4 @@ class BrilliantEvolvedAgent:
 nim = Nim(3)
 brilliantagent = BrilliantEvolvedAgent()
 best_strategy = brilliantagent.learn(nim=nim)
-engine = brilliantagent.strategy(best_strategy, nim)
+engine = brilliantagent.strategy(best_strategy)
