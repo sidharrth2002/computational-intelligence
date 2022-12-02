@@ -43,6 +43,7 @@ class BrilliantEvolvedAgent:
         self.OFFSPRING_SIZE = 10
         self.POPULATION_SIZE = 100
         self.GENERATIONS = 100
+        self.nim_size = 3
 
     def nim_sum(self, nim: Nim):
         '''
@@ -73,7 +74,7 @@ class BrilliantEvolvedAgent:
                 'rule_2a': [random.randint(0, 1), random.randint(0, self.nim_size * 2)],
                 'rule_2b': [random.randint(0, 1), random.randint(0, self.nim_size * 2)],
                 'rule_3': [nim.rows.index(min(nim.rows)), min(nim.rows)],
-                'rule_4': [nim.rows.index(min(nim.rows)), max(nim.rows) - min(nim.rows)]
+                'rule_4': [nim.rows.index(max(nim.rows)), max(nim.rows) - min(nim.rows)]
             }
             genome = Genome(individual)
             population.append(genome)
@@ -124,6 +125,8 @@ class BrilliantEvolvedAgent:
         Similar to Squillero's cooked function to get possible moves
         and statistics on Nim board
         '''
+        # print('In statistics')
+        # print(nim.rows)
         stats = {
             'possible_moves': [(row, num_objects) for row in range(nim.num_rows) for num_objects in range(1, nim.rows[row]+1)],
             'active_rows_number': sum(o > 0 for o in nim.rows),
@@ -143,14 +146,15 @@ class BrilliantEvolvedAgent:
 
         return stats
 
-    def strategy(self, genome: dict, nim: Nim):
+    def strategy(self, genome: dict):
         '''
         Returns the best move to make based on the statistics
         '''
-        def evolution():
+        def evolution(nim: Nim):
             stats = self.statistics(nim)
             if stats['active_rows_number'] == 1:
-                num_to_leave = genome['rules']['rule_1'][1]
+                # print("Entering rule 1")
+                num_to_leave = genome.rules['rule_1'][1]
                 # see which move will take the most sticks
                 most_destructive_move = max(stats['possible_moves'], key=lambda x: x[1])
                 if num_to_leave > most_destructive_move[1]:
@@ -159,7 +163,11 @@ class BrilliantEvolvedAgent:
                 else:
                     # make the move that leaves the desired number of sticks
                     move = [(row, num_objects) for row, num_objects in stats['possible_moves'] if nim.rows[row] - num_objects == num_to_leave]
-                    return Nimply(*move[0])
+                    if len(move) > 0:
+                        return Nimply(move[0][0], move[0][1])
+                    else:
+                        # make random move
+                        return Nimply(*random.choice(stats['possible_moves']))
 
                 # if (max(stats['possible_moves'], key=lambda x: x[1])[1] <= genome['rule_1']):
                 #     return Nimply(stats['active_rows_index'], genome['rule_1'])
@@ -167,34 +175,46 @@ class BrilliantEvolvedAgent:
                 # chosen_move = random.choice([(move, num_objects) for move, num_objects in stats['possible_moves'] if nim.rows[move] - num_objects == genome['rule_1']])
                 # return Nimply(chosen_move[0], chosen_move[1])
             elif stats['active_rows_number'] == 2:
+                # print("Entering rule 2")
                 # rule 2a
                 if stats['row_with_1_stick_bool']:
                     # first row
-                    if genome['rules']['rule_2a'][0] == 0:
+                    if genome.rules['rule_2a'][0] == 0:
                         pile = random.choice([i for i, x in enumerate(nim.rows) if x == 1])
                         return Nimply(pile, 1)
                     # second row
-                    elif genome['rules']['rule_2a'][0] == 1:
-                        pile = random.choice([i for i, x in enumerate(nim.rows) if x > 1])
-                        num_objects_to_remove = nim.rows[pile] - genome['rules']['rule_2a'][1]
+                    elif genome.rules['rule_2a'][0] == 1:
+                        # print(nim.rows)
+                        pile = random.choice([i for i, x in enumerate(nim.rows) if x >= 1])
+                        num_objects_to_remove = nim.rows[pile] - genome.rules['rule_2a'][1]
                         if num_objects_to_remove < 1:
                             # take at least 1 stick
                             num_objects_to_remove = 1
                         return Nimply(pile, num_objects_to_remove)
                 # rule 2b
                 else:
-                    if genome['rules']['rule_2b'][0] == 0:
+                    if genome.rules['rule_2b'][0] == 0:
                         row = stats['shortest_row']
                     else:
                         row = stats['longest_row']
                     num_objects_to_remove = nim.rows[row] - genome['rule_2b'][1]
-                    return Nimply(row, genome['rules']['rule_2b'][1])
+                    return Nimply(row, genome.rules['rule_2b'][1])
             elif stats['active_rows_number'] >= 3:
+                # print("Entering rule 3")
                 # fixed set of rules for 4 or more piles (nothing changes idk)
-                if stats['shortest_row'] == stats['longest_row']:
-                    return Nimply(genome['rules']['rule_3'][0], genome['rules']['rule_3'][1])
+
+                # check if at least 2 rows have the same number of sticks
+                if len(nim.rows) == 3 and len(set(nim.rows)) == len(nim.rows):
+                    # remove 1 stick from the longest row
+                    return Nimply(nim.rows.index(stats['longest_row']), max(nim.rows) - stats['shortest_row'])
                 else:
-                    return Nimply(genome['rules']['rule_4'][0], genome['rules']['rule_4'][1])
+                    # do something random
+                    return Nimply(*random.choice(stats['possible_moves']))
+
+                # if stats['shortest_row'] == stats['longest_row']:
+                #     return Nimply(genome.rules['rule_3'][0], genome.rules['rule_3'][1])
+                # else:
+                #     return Nimply(genome.rules['rule_4'][0], genome.rules['rule_4'][1])
 
             # if stats['active_rows_number'] == 1:
             #     # take all sticks from the only row
@@ -233,33 +253,52 @@ class BrilliantEvolvedAgent:
         '''
         wins = 0
         for i in range(3):
+            print("Start Game")
             nim = Nim(3)
             player = 0
-            while nim:
+            engine = self.strategy(genome)
+            while not nim.goal():
                 if player == 0:
-                    nim.nimming_remove(*self.strategy(genome, nim))
+                    move = engine(nim)
+                    print('move of player 1: ', move)
+                    nim.nimming_remove(*move)
                     player = 1
+                    print("After Player 1 made move: ", nim.rows)
                 else:
                     nim.nimming_remove(*self.random_agent(nim))
                     player = 0
-
+                    print("After Player 2 made move: ", nim.rows)
+            print("Game Over")
             winner = 1 - player
             if winner == 0:
                 wins += 1
         return wins
 
-    def learn(self, population_size=100, generations=100, mutation_rate=0.1, crossover_rate=0.7, nim: Nim = None):
+    def select_survivors(self, population: list, num_survivors: int):
+        '''
+        Select the best genomes from the population
+        '''
+        return sorted(population, key=lambda x: x['fitness'], reverse=True)[:num_survivors]
+
+    def learn(self, population_size=100, mutation_rate=0.1, crossover_rate=0.7, nim: Nim = None):
         initial_population = self.init_population(population_size, nim)
+        for genome in initial_population:
+            genome.fitness = self.calculate_fitness(genome)
         for i in range(self.GENERATIONS):
-            print(f'Generation {i}')
+            # print(f'Generation {i}')
+            new_offspring = []
             for j in range(self.OFFSPRING_SIZE):
                 parent1 = self.select_parent(initial_population)
                 parent2 = self.select_parent(initial_population)
                 child = self.crossover(parent1, parent2, crossover_rate)
                 child = self.mutate(child, mutation_rate)
-                initial_population.append(child)
-            population = self.evolve(initial_population, mutation_rate, crossover_rate)
-            initial_population = population
+                new_offspring.append(child)
+            initial_population += new_offspring
+            initial_population = self.select_survivors(initial_population, population_size)
+        best_strategy = initial_population[0]
+        return best_strategy
 
+nim = Nim(3)
 brilliantagent = BrilliantEvolvedAgent()
-brilliantagent.n
+best_strategy = brilliantagent.learn(nim=nim)
+engine = brilliantagent.strategy(best_strategy, nim)
