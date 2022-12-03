@@ -40,7 +40,7 @@ class Genome:
 class BrilliantEvolvedAgent:
     def __init__(self):
         self.num_moves = 0
-        self.OFFSPRING_SIZE = 20
+        self.OFFSPRING_SIZE = 30
         self.POPULATION_SIZE = 100
         self.GENERATIONS = 100
         self.nim_size = 3
@@ -178,7 +178,7 @@ class BrilliantEvolvedAgent:
                 # chosen_move = random.choice([(move, num_objects) for move, num_objects in stats['possible_moves'] if nim.rows[move] - num_objects == genome['rule_1']])
                 # return Nimply(chosen_move[0], chosen_move[1])
             elif stats['active_rows_number'] == 2:
-                # print("Entering rule 2")
+                print("Entering rule 2")
                 # rule 2a
                 if stats['row_with_1_stick_bool']:
                     # first row
@@ -197,17 +197,27 @@ class BrilliantEvolvedAgent:
                 # rule 2b
                 else:
                     if genome.rules['rule_2b'][0] == 0:
-                        row = stats['shortest_row']
+                        row = nim.rows.index(stats['shortest_row'])
+                        print('shortest row', row)
                     else:
-                        row = stats['longest_row']
-                    num_objects_to_remove = nim.rows[row] - genome['rule_2b'][1]
-                    return Nimply(row, genome.rules['rule_2b'][1])
+                        row = nim.rows.index(stats['longest_row'])
+                        print('longest row', row)
+                    num_objects_to_remove = max(nim.rows[row] - genome.rules['rule_2b'][1], 1)
+                    print('num_objects_to_remove', num_objects_to_remove)
+                    return Nimply(row, num_objects_to_remove)
             elif stats['active_rows_number'] >= 3:
                 # print("Entering rule 3")
                 # fixed set of rules for 4 or more piles (nothing changes idk)
 
-                # check if at least 2 rows have the same number of sticks
-                if len(nim.rows) == 3 and len(set(nim.rows)) == len(nim.rows):
+                unique_elements = set(nim.rows)
+                # check if 2 rows have the same number of sticks
+                two_rows_with_same_elements = False
+                for element in unique_elements:
+                    if nim.rows.count(element) == 2:
+                        two_rows_with_same_elements = True
+                        break
+
+                if len(nim.rows) == 3 and two_rows_with_same_elements:
                     # remove 1 stick from the longest row
                     return Nimply(nim.rows.index(stats['longest_row']), max(nim.rows) - stats['shortest_row'])
                 else:
