@@ -69,6 +69,7 @@ class BrilliantEvolvedAgent:
         population = []
         for i in range(population_size):
             # rules 3 and 4 are fixed (apply for 3 or more piles)
+            # different strategies for different rules (situations on the board)
             individual = {
                 'rule_1': [0, random.randint(0, nim.rows[0])],
                 'rule_2a': [random.randint(0, 1), random.randint(0, self.nim_size * 2)],
@@ -157,9 +158,9 @@ class BrilliantEvolvedAgent:
             if stats['active_rows_number'] == 1:
                 # print("Entering rule 1")
                 num_to_leave = genome.rules['rule_1'][1]
-                # see which move will take the most sticks
+                # see which move will leave the most sticks
                 most_destructive_move = max(stats['possible_moves'], key=lambda x: x[1])
-                if num_to_leave > most_destructive_move[1]:
+                if num_to_leave >= most_destructive_move[1]:
                     # remove only 1 stick
                     return Nimply(most_destructive_move[0], 1)
                 else:
