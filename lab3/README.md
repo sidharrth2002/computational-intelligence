@@ -8,4 +8,12 @@ In this notebook, we will play nim-sum using the following agents:
 3. An agent using minmax
 4. An agent using reinforcement learning
 
-> Sidharrth Nagappan, 2022
+## Rules
+
+We came up with multiple rules, through discussion with friends like Karl Wennerstrom and through research papers that define fixed rules for playing Nim. There are currently 4 rules that we have implemented. The rules are as follows:
+1. If one pile, take x number of sticks from the pile.
+2. If two piles:
+    a. If 1 pile has 1 stick, take x sticks
+    b. If 2 piles have multiple sticks, take x sticks from the larger pile
+3. If three piles and two piles have the same size, remove all sticks from the smallest pile
+4. If n piles and n-1 piles have the same size, remove x sticks from the smallest pile until it is the same size as the other piles
