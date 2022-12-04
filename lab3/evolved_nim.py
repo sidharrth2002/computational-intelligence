@@ -181,43 +181,7 @@ class BrilliantEvolvedAgent:
                         pile = stats['longest_row']
                         num_objects_to_remove = max(1, nim.rows[pile] - genome.rules['rule_2b'][1])
                         return Nimply(pile, num_objects_to_remove)
-                    # return Nimply(genome.rules['rule_2b'][0], max(nim.rows[genome.rules['rule_2b'][0]] - genome.rules['rule_2b'][1], 1))
-                    # if genome.rules['rule_2b'][1] == 0:
-                    #     # take from the smallest pile
-                    #     pile = stats['possible_moves'][0][0]
-                    #     return Nimply(pile, nim.rows[pile])
 
-                    # first row
-                    # if genome.rules['rule_2a'][0] == 0:
-                        # wipe out the one stick row
-                    # pile = [i for i, x in enumerate(nim.rows) if x == 1][0]
-                    # return Nimply(pile, 1)
-                    # second row
-                    # elif genome.rules['rule_2a'][0] == 1:
-                    #     pile = random.choice([i for i, x in enumerate(nim.rows) if x >= 1])
-                    #     num_objects_to_remove = nim.rows[pile] - genome.rules['rule_2a'][1]
-                    #     if num_objects_to_remove < 1:
-                    #         # take at least 1 stick (avoid weird negative numbers)
-                    #         num_objects_to_remove = 1
-                    #     return Nimply(pile, num_objects_to_remove)
-                # else:
-                #     print(nim.rows)
-                #     print('here')
-                #     pile = genome.rules['rule_2b'][0]
-                #     num_objects_to_remove = nim.rows[pile] - genome.rules['rule_2b'][1]
-                #     print(pile, num_objects_to_remove)
-                #     return Nimply(pile, num_objects_to_remove)
-                # rule 2b
-                # else:
-                #     if genome.rules['rule_2b'][0] == 0:
-                #         row = nim.rows.index(stats['shortest_row'])
-                #         print('shortest row', row)
-                #     else:
-                #         row = nim.rows.index(stats['longest_row'])
-                #         print('longest row', row)
-                #     num_objects_to_remove = max(nim.rows[row] - genome.rules['rule_2b'][1], 1)
-                #     print('num_objects_to_remove', num_objects_to_remove)
-                #     return Nimply(row, num_objects_to_remove)
             elif stats['num_active_rows'] == 3:
                 unique_elements = set(nim.rows)
                 # check if 2 rows have the same number of sticks
