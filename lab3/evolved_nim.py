@@ -1,6 +1,7 @@
 '''
 In this file, I will try to implement Nim where there is an evolved set of rules/strategies.
 For each scenario, I will have a set of rules that will be used to determine the best move.
+They are obtained from discussion with friends and from the paper "The Game of Nim" by Ryan Julian
 The rules currently are:
 1. If one pile, take $x$ number of sticks from the pile.
 2. If two piles:
@@ -172,7 +173,7 @@ class BrilliantEvolvedAgent:
                     # make the move that leaves the desired number of sticks
                     move = [(row, num_objects) for row, num_objects in stats['possible_moves'] if nim.rows[row] - num_objects == num_to_leave]
                     if len(move) > 0:
-                        return Nimply(move[0][0], move[0][1])
+                        return Nimply(*move[0])
                     else:
                         # make random move
                         return Nimply(*random.choice(stats['possible_moves']))
@@ -277,8 +278,8 @@ class BrilliantEvolvedAgent:
                     if counter.most_common()[0][1] == 1:
                         # remove x sticks from the smallest pile until it is the same size as the other piles
                         return Nimply(stats['shortest_row'], max(nim.rows[stats['shortest_row']] - counter.most_common()[1][0], 1))
-                        # return Nimply(nim.rows.index(counter.most_common()[1][0]), 1)
-
+                # just make a random move if all else fails
+                return random.choice(stats['possible_moves'])
         return evolution
 
     def random_agent(self, nim: Nim):
