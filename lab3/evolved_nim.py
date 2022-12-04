@@ -10,7 +10,7 @@ The rules currently are:
 4. If n piles and n-1 piles have the same size, remove x sticks from the smallest pile until it is the same size as the other piles
 '''
 
-from collections import namedtuple
+from collections import Counter, namedtuple
 from copy import deepcopy
 from itertools import accumulate
 from operator import xor
@@ -264,6 +264,20 @@ class BrilliantEvolvedAgent:
                 else:
                     # do something random
                     return Nimply(*random.choice(stats['possible_moves']))
+
+            else:
+                # this is a fixed rule, does not have random component
+                # rule from the paper Ryan Julian: The Game of Nim
+                # If n piles and n-1 piles have the same size, remove x sticks from the smallest pile until it is the same size as the other piles
+                # check if only 1 pile has a different number of sticks
+                counter = Counter()
+                for element in nim.rows:
+                    counter[element] += 1
+                if len(counter) == 2:
+                    if counter.most_common()[0][1] == 1:
+                        # remove x sticks from the smallest pile until it is the same size as the other piles
+                        return Nimply(stats['shortest_row'], max(nim.rows[stats['shortest_row']] - counter.most_common()[1][0], 1))
+                        # return Nimply(nim.rows.index(counter.most_common()[1][0]), 1)
 
         return evolution
 
