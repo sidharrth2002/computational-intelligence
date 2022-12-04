@@ -27,6 +27,10 @@ class Nim:
         assert self._k is None or num_objects <= self._k
         self.rows[row] -= num_objects
 
+    @property
+    def k(self):
+        return self._k
+
     def goal(self):
         return sum(self.rows) == 0
 
@@ -61,8 +65,8 @@ class BrilliantEvolvedAgent:
         The rules currently are:
         1. If one pile, take $x$ number of sticks from the pile.
         2. If two piles:
-            a. If 1 pile has 1 stick, take x sticks
-            b. If 2 piles have multiple sticks, take x sticks from the smallest pile
+            a. If 1 pile has 1 stick, wipe out the pile
+            b. If 2 piles have multiple sticks, take x sticks from any pile
         3. If three piles and two piles have the same size, remove all sticks from the smallest pile
         4. If n piles and n-1 piles have the same size, remove x sticks from the smallest pile until it is the same size as the other piles
         '''
@@ -71,9 +75,9 @@ class BrilliantEvolvedAgent:
             # rules 3 and 4 are fixed (apply for 3 or more piles)
             # different strategies for different rules (situations on the board)
             individual = {
-                'rule_1': [0, random.randint(0, nim.rows[0])],
-                'rule_2a': [random.randint(0, 1), random.randint(0, self.nim_size * 2)],
-                'rule_2b': [random.randint(0, 1), random.randint(0, self.nim_size * 2)],
+                'rule_1': [0, random.randint(0, (self.nim_size - 1) * 2)],
+                'rule_2a': [random.randint(0, 1), random.randint(0, (self.nim_size - 1) * 2)],
+                'rule_2b': [random.randint(0, 1), random.randint(0, (self.nim_size - 1) * 2)],
                 'rule_3': [nim.rows.index(min(nim.rows)), min(nim.rows)],
                 'rule_4': [nim.rows.index(max(nim.rows)), max(nim.rows) - min(nim.rows)]
             }
@@ -131,12 +135,13 @@ class BrilliantEvolvedAgent:
         # print('In statistics')
         # print(nim.rows)
         stats = {
-            'possible_moves': [(row, num_objects) for row in range(nim.num_rows) for num_objects in range(1, nim.rows[row]+1)],
-            'active_rows_number': sum(o > 0 for o in nim.rows),
-            'shortest_row': min((x for x in enumerate(nim.rows) if x[1] > 0), key=lambda y: y[1])[1],
-            'longest_row': max((x for x in enumerate(nim.rows)), key=lambda y: y[1])[1],
+            'possible_moves': [(r, o) for r, c in enumerate(nim.rows) for o in range(1, c + 1) if nim.k is None or o <= nim.k],
+            # 'possible_moves': [(row, num_objects) for row in range(nim.num_rows) for num_objects in range(1, nim.rows[row]+1)],
+            'num_active_rows': sum(o > 0 for o in nim.rows),
+            'shortest_row': min((x for x in enumerate(nim.rows) if x[1] > 0), key=lambda y: y[1])[0],
+            'longest_row': max((x for x in enumerate(nim.rows)), key=lambda y: y[1])[0],
             # only 1-stick row and not all rows having only 1 stick
-            'row_with_1_stick_bool': (1 in nim.rows) and not all(x == 1 for x in nim.rows),
+            '1_stick_row': any([1 for x in nim.rows if x == 1]) and not all([1 for x in nim.rows if x == 1]),
             'nim_sum': self.nim_sum(nim)
         }
 
@@ -155,7 +160,7 @@ class BrilliantEvolvedAgent:
         '''
         def evolution(nim: Nim):
             stats = self.statistics(nim)
-            if stats['active_rows_number'] == 1:
+            if stats['num_active_rows'] == 1:
                 # print("Entering rule 1")
                 num_to_leave = genome.rules['rule_1'][1]
                 # see which move will leave the most sticks
@@ -172,35 +177,75 @@ class BrilliantEvolvedAgent:
                         # make random move
                         return Nimply(*random.choice(stats['possible_moves']))
 
-            elif stats['active_rows_number'] == 2:
+            elif stats['num_active_rows'] == 2:
                 print("Entering rule 2")
                 # rule 2a
-                if stats['row_with_1_stick_bool']:
-                    # first row
+                if stats['1_stick_row']:
+                    # if there is a 1-stick row, have to choose between wiping it out or taking from the other row
                     if genome.rules['rule_2a'][0] == 0:
-                        pile = random.choice([i for i, x in enumerate(nim.rows) if x == 1])
+                        # wipe out the 1-stick row
+                        print('wiping out 1-stick row')
+                        pile = [row for row in range(nim.num_rows) if nim.rows[row] == 1][0]
                         return Nimply(pile, 1)
-                    # second row
-                    elif genome.rules['rule_2a'][0] == 1:
-                        # print(nim.rows)
-                        pile = random.choice([i for i, x in enumerate(nim.rows) if x >= 1])
-                        num_objects_to_remove = nim.rows[pile] - genome.rules['rule_2a'][1]
-                        if num_objects_to_remove < 1:
-                            # take at least 1 stick
-                            num_objects_to_remove = 1
+                    else:
+                        # take out the desired number of sticks from the other row
+                        pile = random.choice([index for index, x in enumerate(nim.rows) if x > 1])
+                        num_objects_to_remove = max(1, nim.rows[pile] - genome.rules['rule_2a'][1])
+                        # move = [(row, num_objects) for row, num_objects in stats['possible_moves'] if nim.rows[row] - num_objects == genome.rules['rule_2a'][1]]
+                        print(pile, num_objects_to_remove)
                         return Nimply(pile, num_objects_to_remove)
                 # rule 2b
+                # both piles have many elements, take from either the smallest or the largest pile
                 else:
                     if genome.rules['rule_2b'][0] == 0:
-                        row = nim.rows.index(stats['shortest_row'])
-                        print('shortest row', row)
+                        # take from the smallest pile
+                        pile = stats['shortest_row']
+                        num_objects_to_remove = max(1, nim.rows[pile] - genome.rules['rule_2b'][1])
+                        return Nimply(pile, num_objects_to_remove)
                     else:
-                        row = nim.rows.index(stats['longest_row'])
-                        print('longest row', row)
-                    num_objects_to_remove = max(nim.rows[row] - genome.rules['rule_2b'][1], 1)
-                    print('num_objects_to_remove', num_objects_to_remove)
-                    return Nimply(row, num_objects_to_remove)
-            elif stats['active_rows_number'] >= 3:
+                        # take from the largest pile
+                        pile = stats['longest_row']
+                        num_objects_to_remove = max(1, nim.rows[pile] - genome.rules['rule_2b'][1])
+                        return Nimply(pile, num_objects_to_remove)
+                    # return Nimply(genome.rules['rule_2b'][0], max(nim.rows[genome.rules['rule_2b'][0]] - genome.rules['rule_2b'][1], 1))
+                    # if genome.rules['rule_2b'][1] == 0:
+                    #     # take from the smallest pile
+                    #     pile = stats['possible_moves'][0][0]
+                    #     return Nimply(pile, nim.rows[pile])
+
+                    # first row
+                    # if genome.rules['rule_2a'][0] == 0:
+                        # wipe out the one stick row
+                    # pile = [i for i, x in enumerate(nim.rows) if x == 1][0]
+                    # return Nimply(pile, 1)
+                    # second row
+                    # elif genome.rules['rule_2a'][0] == 1:
+                    #     pile = random.choice([i for i, x in enumerate(nim.rows) if x >= 1])
+                    #     num_objects_to_remove = nim.rows[pile] - genome.rules['rule_2a'][1]
+                    #     if num_objects_to_remove < 1:
+                    #         # take at least 1 stick (avoid weird negative numbers)
+                    #         num_objects_to_remove = 1
+                    #     return Nimply(pile, num_objects_to_remove)
+                # else:
+                #     print(nim.rows)
+                #     print('here')
+                #     pile = genome.rules['rule_2b'][0]
+                #     num_objects_to_remove = nim.rows[pile] - genome.rules['rule_2b'][1]
+                #     print(pile, num_objects_to_remove)
+                #     return Nimply(pile, num_objects_to_remove)
+                # rule 2b
+                # else:
+                #     if genome.rules['rule_2b'][0] == 0:
+                #         row = nim.rows.index(stats['shortest_row'])
+                #         print('shortest row', row)
+                #     else:
+                #         row = nim.rows.index(stats['longest_row'])
+                #         print('longest row', row)
+                #     num_objects_to_remove = max(nim.rows[row] - genome.rules['rule_2b'][1], 1)
+                #     print('num_objects_to_remove', num_objects_to_remove)
+                #     return Nimply(row, num_objects_to_remove)
+            elif stats['num_active_rows'] >= 3:
+                print('HERE')
                 # print("Entering rule 3")
                 # fixed set of rules for 4 or more piles (nothing changes idk)
 
@@ -214,7 +259,8 @@ class BrilliantEvolvedAgent:
 
                 if len(nim.rows) == 3 and two_rows_with_same_elements:
                     # remove 1 stick from the longest row
-                    return Nimply(nim.rows.index(stats['longest_row']), max(nim.rows) - stats['shortest_row'])
+                    print(nim.rows)
+                    return Nimply(stats['longest_row'], max(max(nim.rows) - nim.rows[stats['shortest_row']], 1))
                 else:
                     # do something random
                     return Nimply(*random.choice(stats['possible_moves']))
