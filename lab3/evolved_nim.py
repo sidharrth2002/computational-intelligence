@@ -16,31 +16,9 @@ from copy import deepcopy
 from itertools import accumulate
 from operator import xor
 import random
+from typing import Callable
 
-class Nim:
-    def __init__(self, num_rows: int, k: int = None):
-        self.num_rows = num_rows
-        self._k = k
-        self.rows = [i*2+1 for i in range(num_rows)]
-
-    def nimming_remove(self, row: int, num_objects: int):
-        assert self.rows[row] >= num_objects
-        assert self._k is None or num_objects <= self._k
-        self.rows[row] -= num_objects
-
-    @property
-    def k(self):
-        return self._k
-
-    def goal(self):
-        return sum(self.rows) == 0
-
-Nimply = namedtuple("Nimply", "row, num_objects")
-
-class Genome:
-    def __init__(self, rules):
-        self.rules = rules
-        self.fitness = 0
+from lab3.lib import Genome, Nim, Nimply
 
 class BrilliantEvolvedAgent:
     def __init__(self):
@@ -48,7 +26,7 @@ class BrilliantEvolvedAgent:
         self.OFFSPRING_SIZE = 30
         self.POPULATION_SIZE = 100
         self.GENERATIONS = 100
-        self.nim_size = 3
+        self.nim_size = 5
 
     def nim_sum(self, nim: Nim):
         '''
@@ -155,7 +133,7 @@ class BrilliantEvolvedAgent:
 
         return stats
 
-    def strategy(self, genome: dict):
+    def strategy(self, genome: dict) -> Callable:
         '''
         Returns the best move to make based on the statistics
         '''
@@ -168,8 +146,10 @@ class BrilliantEvolvedAgent:
                 most_destructive_move = max(stats['possible_moves'], key=lambda x: x[1])
                 if num_to_leave >= most_destructive_move[1]:
                     # remove only 1 stick
+                    print('marker 1')
                     return Nimply(most_destructive_move[0], 1)
                 else:
+                    print('marker 2')
                     # make the move that leaves the desired number of sticks
                     move = [(row, num_objects) for row, num_objects in stats['possible_moves'] if nim.rows[row] - num_objects == num_to_leave]
                     if len(move) > 0:
@@ -179,6 +159,7 @@ class BrilliantEvolvedAgent:
                         return Nimply(*random.choice(stats['possible_moves']))
 
             elif stats['num_active_rows'] == 2:
+                print('marker 3')
                 print("Entering rule 2")
                 # rule 2a
                 if stats['1_stick_row']:
@@ -245,8 +226,9 @@ class BrilliantEvolvedAgent:
                 #     num_objects_to_remove = max(nim.rows[row] - genome.rules['rule_2b'][1], 1)
                 #     print('num_objects_to_remove', num_objects_to_remove)
                 #     return Nimply(row, num_objects_to_remove)
-            elif stats['num_active_rows'] >= 3:
+            elif stats['num_active_rows'] == 3:
                 print('HERE')
+                print('marker 4')
                 # print("Entering rule 3")
                 # fixed set of rules for 4 or more piles (nothing changes idk)
 
@@ -266,24 +248,36 @@ class BrilliantEvolvedAgent:
                     # do something random
                     return Nimply(*random.choice(stats['possible_moves']))
 
-            # for large number of piles, remove all but 1 stick from a random pile
-            elif stats["active_rows_number"] % 2 == 0:
-                pile = random.choice([i for i, x in enumerate(nim.rows) if x > 1])
-                return Nimply(pile, nim.rows[pile] - 1)
+            counter = Counter()
+            for element in nim.rows:
+                counter[element] += 1
+            if len(counter) == 2:
+                print('marker 5')
+                if counter.most_common()[0][1] == 1:
+                    # remove x sticks from the smallest pile until it is the same size as the other piles
+                    return Nimply(stats['shortest_row'], max(nim.rows[stats['shortest_row']] - counter.most_common()[1][0], 1))
+                # else:
+                #     return random.choice(stats['possible_moves'])
+
+            # for large number of piles, general rule to remove all but 1 stick from a random pile
+            if stats["num_active_rows"] % 2 == 0:
+                print('marker 6')
+                print('here')
+                print(nim.rows)
+                if nim.rows[stats['longest_row']] == 1:
+                    return Nimply(stats['longest_row'], 1)
+                else:
+                    pile = random.choice([i for i, x in enumerate(nim.rows) if x > 1])
+                    return Nimply(pile, nim.rows[pile] - 1)
 
             else:
+                print('marker 7')
                 # this is a fixed rule, does not have random component
                 # rule from the paper Ryan Julian: The Game of Nim
                 # If n piles and n-1 piles have the same size, remove x sticks from the smallest pile until it is the same size as the other piles
                 # check if only 1 pile has a different number of sticks
-                counter = Counter()
-                for element in nim.rows:
-                    counter[element] += 1
-                if len(counter) == 2:
-                    if counter.most_common()[0][1] == 1:
-                        # remove x sticks from the smallest pile until it is the same size as the other piles
-                        return Nimply(stats['shortest_row'], max(nim.rows[stats['shortest_row']] - counter.most_common()[1][0], 1))
                 # just make a random move if all else fails
+                print('markere')
                 return random.choice(stats['possible_moves'])
         return evolution
 
@@ -302,12 +296,13 @@ class BrilliantEvolvedAgent:
         wins = 0
         for i in range(5):
             print("Start Game")
-            nim = Nim(3)
+            nim = Nim(5)
             player = 0
             engine = self.strategy(genome)
             while not nim.goal():
                 if player == 0:
                     move = engine(nim)
+                    print(move)
                     print('move of player 1: ', move)
                     nim.nimming_remove(*move)
                     player = 1
@@ -351,7 +346,7 @@ class BrilliantEvolvedAgent:
 rounds = 20
 evolved_agent_wins = 0
 for i in range(rounds):
-    nim = Nim(3)
+    nim = Nim(5)
     orig = nim.rows
     brilliantagent = BrilliantEvolvedAgent()
     best_strategy = brilliantagent.learn(nim=nim)
