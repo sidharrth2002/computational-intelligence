@@ -172,11 +172,6 @@ class BrilliantEvolvedAgent:
                         # make random move
                         return Nimply(*random.choice(stats['possible_moves']))
 
-                # if (max(stats['possible_moves'], key=lambda x: x[1])[1] <= genome['rule_1']):
-                #     return Nimply(stats['active_rows_index'], genome['rule_1'])
-                # genome specifies number of sticks to leave behind
-                # chosen_move = random.choice([(move, num_objects) for move, num_objects in stats['possible_moves'] if nim.rows[move] - num_objects == genome['rule_1']])
-                # return Nimply(chosen_move[0], chosen_move[1])
             elif stats['active_rows_number'] == 2:
                 print("Entering rule 2")
                 # rule 2a
@@ -223,32 +218,6 @@ class BrilliantEvolvedAgent:
                 else:
                     # do something random
                     return Nimply(*random.choice(stats['possible_moves']))
-
-                # if stats['shortest_row'] == stats['longest_row']:
-                #     return Nimply(genome.rules['rule_3'][0], genome.rules['rule_3'][1])
-                # else:
-                #     return Nimply(genome.rules['rule_4'][0], genome.rules['rule_4'][1])
-
-            # if stats['active_rows_number'] == 1:
-            #     # take all sticks from the only row
-            #     return (0, stats['shortest_row'])
-            # elif stats['active_rows_number'] == 2:
-            #     if stats['row_with_1_stick_bool']:
-            #         # take all sticks from the row with 1 stick
-            #         return Nimply(stats['possible_moves'][0][0], stats['possible_moves'][0][1])
-            #     else:
-            #         # take all sticks from the largest row
-            #         return Nimply(stats['longest_row'][0], stats['longest_row'][1])
-            # elif stats['active_rows_number'] == 3:
-            #     if stats['shortest_row'] == stats['nim_sum']:
-            #         # take all sticks from the smallest row
-            #         return Nimply(stats['shortest_row'][0], stats['shortest_row'][1])
-            #     else:
-            #         # take all sticks from the largest row
-            #         return Nimply(stats['longest_row'][0], stats['longest_row'][1])
-            # else:
-            #     # take all sticks from the smallest row until it is the same size as the other rows
-            #     return Nimply(stats['shortest_row'][0], stats['shortest_row'][1])
 
         return evolution
 
