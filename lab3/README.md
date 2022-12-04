@@ -18,6 +18,9 @@ We came up with multiple rules, through discussion with friends and through rese
 3. If three piles and two piles have the same size, remove all sticks from the smallest pile
 4. If n piles and n-1 piles have the same size, remove x sticks from the smallest pile until it is the same size as the other piles
 
+<img src="./rules.png" width="300" style="display: block; margin: 0 auto"  />
+<p style="text-align: center;">Figure 1: Rules for playing Nim (Ryan Julius)</p>
+
 ### Task 3.1: Fixed Rules
 
 The above rules are applied directly. An if-else sequence decides which strategy to employ based on the current layout and statistics on the nim board.
