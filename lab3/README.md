@@ -25,8 +25,13 @@ We came up with multiple rules, through discussion with friends and through rese
 
 ### Task 3.1: Fixed Rules
 
+#### Approach 1: A Lot of If-Elses
+
 The above rules are applied directly. An if-else sequence decides which strategy to employ based on the current layout and statistics on the nim board.
 
+#### Approach 2: Nim-Sum
+
+Will always win
 ### Task 3.2: Evolved Rules
 
 #### Approach 1: Evolving strategies for different board layouts (Rule-Strategy Evolution)
