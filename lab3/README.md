@@ -21,7 +21,7 @@ We came up with multiple rules, through discussion with friends and through rese
 <p align="center">
 <img src="./rules.png" width="300" />
 </p>
-<p style="text-align: center;">Figure 1: Rules for playing Nim (Ryan Julius)</p>
+<p align="center">Figure 1: Rules for playing Nim (Ryan Julius)</p>
 
 ### Task 3.1: Fixed Rules
 
