@@ -266,6 +266,11 @@ class BrilliantEvolvedAgent:
                     # do something random
                     return Nimply(*random.choice(stats['possible_moves']))
 
+            # for large number of piles, remove all but 1 stick from a random pile
+            elif stats["active_rows_number"] % 2 == 0:
+                pile = random.choice([i for i, x in enumerate(nim.rows) if x > 1])
+                return Nimply(pile, nim.rows[pile] - 1)
+
             else:
                 # this is a fixed rule, does not have random component
                 # rule from the paper Ryan Julian: The Game of Nim
