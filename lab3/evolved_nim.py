@@ -265,7 +265,7 @@ class BrilliantEvolvedAgent:
         (cannot use nim sum agent as it is too good)
         '''
         wins = 0
-        for i in range(3):
+        for i in range(5):
             print("Start Game")
             nim = Nim(3)
             player = 0
@@ -285,7 +285,7 @@ class BrilliantEvolvedAgent:
             winner = 1 - player
             if winner == 0:
                 wins += 1
-        return wins
+        return wins / 5
 
     def select_survivors(self, population: list, num_survivors: int):
         '''
