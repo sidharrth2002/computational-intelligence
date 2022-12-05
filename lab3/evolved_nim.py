@@ -18,13 +18,13 @@ from operator import xor
 import random
 from typing import Callable
 
-from lab3.lib import Genome, Nim, Nimply
+from lib import Genome, Nim, Nimply
 
 class BrilliantEvolvedAgent:
     def __init__(self):
         self.num_moves = 0
-        self.OFFSPRING_SIZE = 30
-        self.POPULATION_SIZE = 100
+        self.OFFSPRING_SIZE = 200
+        self.POPULATION_SIZE = 50
         self.GENERATIONS = 100
         self.nim_size = 5
 
@@ -97,12 +97,25 @@ class BrilliantEvolvedAgent:
 
     def mutate(self, genome: Genome, mutation_rate=0.5):
         '''
-        Mutate the genome by changing one of the rules (can end up in something stupid like removing more sticks than there are, but this is checked in the strategy function)
+        Mutate the genome by switching one of the rules (can end up in something stupid like removing more sticks than there are, but this is checked in the strategy function)
         '''
         rule = random.choice(list(genome.rules.keys()))
-        if random.random() < mutation_rate:
-            genome.rules[rule] = [random.randint(0, 1), random.randint(0, self.nim_size * 2)]
+        # swap some keys
+        if rule == 'rule_1':
+            genome.rules[rule] = [0, random.randint(0, (self.nim_size - 1) * 2)]
+        elif rule == 'rule_2a':
+            genome.rules[rule] = [random.randint(0, 1), random.randint(0, (self.nim_size - 1) * 2)]
+        elif rule == 'rule_2b':
+            genome.rules[rule] = [random.randint(0, 1), random.randint(0, (self.nim_size - 1) * 2)]
+        elif rule == 'rule_3':
+            genome.rules[rule] = [random.randint(0, self.nim_size - 1), random.randint(0, (self.nim_size - 1) * 2)]
+        elif rule == 'rule_4':
+            genome.rules[rule] = [random.randint(0, self.nim_size - 1), random.randint(0, (self.nim_size - 1) * 2)]
         return genome
+        # rule = random.choice(list(genome.rules.keys()))
+        # if random.random() < mutation_rate:
+        #     genome.rules[rule] = [random.randint(0, 1), random.randint(0, self.nim_size * 2)]
+        # return genome
         # rule = random.choice(list(genome.keys()))
         # genome[rule] = random.randint(1, 10)
 
@@ -279,31 +292,32 @@ class BrilliantEvolvedAgent:
         best_strategy = initial_population[0]
         return best_strategy
 
-rounds = 20
-evolved_agent_wins = 0
-for i in range(rounds):
-    nim = Nim(5)
-    orig = nim.rows
-    brilliantagent = BrilliantEvolvedAgent()
-    best_strategy = brilliantagent.learn(nim=nim)
-    engine = brilliantagent.strategy(best_strategy)
+if __name__ == '__main__':
+    rounds = 20
+    evolved_agent_wins = 0
+    for i in range(rounds):
+        nim = Nim(5)
+        orig = nim.rows
+        brilliantagent = BrilliantEvolvedAgent()
+        best_strategy = brilliantagent.learn(nim=nim)
+        engine = brilliantagent.strategy(best_strategy)
 
-    # play against random
-    player = 0
-    while not nim.goal():
-        if player == 0:
-            move = engine(nim)
-            print('move of player 1: ', move)
-            nim.nimming_remove(*move)
-            player = 1
-            print("After Player 1 made move: ", nim.rows)
-        else:
-            move = brilliantagent.random_agent(nim)
-            print('move of player 2: ', move)
-            nim.nimming_remove(*move)
-            player = 0
-            print("After Player 2 made move: ", nim.rows)
-    winner = 1 - player
-    if winner == 0:
-        evolved_agent_wins += 1
-print(f'Evolved agent won {evolved_agent_wins} out of {rounds} games')
+        # play against random
+        player = 0
+        while not nim.goal():
+            if player == 0:
+                move = engine(nim)
+                print('move of player 1: ', move)
+                nim.nimming_remove(*move)
+                player = 1
+                print("After Player 1 made move: ", nim.rows)
+            else:
+                move = brilliantagent.random_agent(nim)
+                print('move of player 2: ', move)
+                nim.nimming_remove(*move)
+                player = 0
+                print("After Player 2 made move: ", nim.rows)
+        winner = 1 - player
+        if winner == 0:
+            evolved_agent_wins += 1
+    print(f'Evolved agent won {evolved_agent_wins} out of {rounds} games')
