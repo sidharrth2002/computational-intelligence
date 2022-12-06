@@ -92,21 +92,28 @@ class MinMaxAgent:
 
 rounds = 10
 
-nim = Nim(num_rows=5)
-agent = MinMaxAgent()
-random_agent = BrilliantEvolvedAgent()
-player = 0
-while not nim.goal():
-    print('in here')
-    if player == 0:
-        move = agent.play(nim)
-        print(f"Minmax move {agent.num_moves}: Removed {move[1]} objects from row {move[0]}")
-        nim.nimming_remove(*move)
-    else:
-        move = random_agent.random_agent(nim)
-        print(f"Random move {random_agent.num_moves}: Removed {move[1]} objects from row {move[0]}")
-        nim.nimming_remove(*move)
-    player = 1 - player
+minmax_wins = 0
+for i in range(rounds):
+    nim = Nim(num_rows=5)
+    agent = MinMaxAgent()
+    random_agent = BrilliantEvolvedAgent()
+    player = 0
+    while not nim.goal():
+        print('in here')
+        if player == 0:
+            move = agent.play(nim)
+            print(f"Minmax move {agent.num_moves}: Removed {move[1]} objects from row {move[0]}")
+            nim.nimming_remove(*move)
+        else:
+            move = random_agent.random_agent(nim)
+            print(f"Random move {random_agent.num_moves}: Removed {move[1]} objects from row {move[0]}")
+            nim.nimming_remove(*move)
+        player = 1 - player
 
-# player that made the last move wins
-print(f"Player {player} wins!")
+    winner = 1 - player
+    if winner == 0:
+        minmax_wins += 1
+    # player that made the last move wins
+    print(f"Player {winner} wins in round {i+1}!")
+
+print(f"Minmax wins {minmax_wins} out of {rounds} rounds")
