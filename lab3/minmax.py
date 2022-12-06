@@ -67,11 +67,16 @@ agent = MinMaxAgent()
 random_agent = BrilliantEvolvedAgent()
 player = 0
 while not nim.goal():
+    print('in here')
     if player == 0:
         move = agent.play(nim)
+        print(f"Minmax move {agent.num_moves}: Removed {move[1]} objects from row {move[0]}")
         nim.nimming_remove(*move)
     else:
         move = random_agent.random_agent(nim)
+        print(f"Random move {random_agent.num_moves}: Removed {move[1]} objects from row {move[0]}")
         nim.nimming_remove(*move)
     player = 1 - player
+
+# player that made the last move wins
 print(f"Player {player} wins!")
