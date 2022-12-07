@@ -18,6 +18,12 @@ class Nim:
     def goal(self):
         return sum(self.rows) == 0
 
+    def __hash__(self):
+        return hash(tuple(self.rows))
+
+    def __eq__(self, other):
+        return self.rows == other.rows
+
 class Genome:
     def __init__(self, rules):
         self.rules = rules
