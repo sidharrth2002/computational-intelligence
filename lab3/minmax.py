@@ -26,12 +26,24 @@ class MinMaxAgent:
         '''
         if all(row == 0 for row in nim.rows):
             return -1 if is_maximizing else 1
+        else:
+            print('hahahahahaha')
+            return -1
 
-    def minmax(self, nim: Nim, depth: int, maximizing_player: bool, alpha: int = -1, beta: int = 1, max_depth: int = 3):
+    def montecarlo(self, nim: Nim, depth: int, maximizing_player: bool, max_depth: int = 7):
+        '''
+        Do monte carlo simulation to find the best move
+        '''
+
+
+    def minmax(self, nim: Nim, depth: int, maximizing_player: bool, alpha: int = -1, beta: int = 1, max_depth: int = 7):
         '''
         Depth-limited Minimax algorithm to find the best move with alpha-beta pruning and depth limit
         '''
-        if depth == 0 or nim.goal():
+        print("Depth ", depth)
+        if depth == 0 or nim.goal() or depth == max_depth:
+            # print("Depth ", depth)
+            # print("Nim goal ", nim.goal())
             return self.evaluate(nim, maximizing_player)
 
         if maximizing_player:
@@ -44,6 +56,7 @@ class MinMaxAgent:
                     value = max(value, self.minmax(replicated_nim, depth-1, False, alpha, beta))
                     alpha = max(alpha, value)
                     if beta <= alpha:
+                        print("Pruned")
                         break
             return value
         else:
@@ -56,6 +69,7 @@ class MinMaxAgent:
                     value = min(value, self.minmax(replicated_nim, depth-1, True, alpha, beta))
                     beta = min(beta, value)
                     if beta <= alpha:
+                        print("Pruned")
                         break
             return value
 
@@ -69,7 +83,7 @@ class MinMaxAgent:
                 # make copy of nim object before running a nimming operation
                 replicated_nim = deepcopy(nim)
                 replicated_nim.nimming_remove(r, o)
-                possible_moves.append((r, o, self.minmax(replicated_nim, 500, False)))
+                possible_moves.append((r, o, self.minmax(replicated_nim, 10, False)))
         # sort possible moves by the value returned by minimax
         possible_moves.sort(key=lambda x: x[2], reverse=True)
         # return the best move
@@ -92,7 +106,7 @@ rounds = 10
 
 minmax_wins = 0
 for i in range(rounds):
-    nim = Nim(num_rows=3)
+    nim = Nim(num_rows=5)
     agent = MinMaxAgent()
     random_agent = BrilliantEvolvedAgent()
     player = 0
