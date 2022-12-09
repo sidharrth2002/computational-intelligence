@@ -245,12 +245,30 @@ class BrilliantEvolvedAgent:
         stats = self.statistics(nim)
         return random.choice(stats['possible_moves'])
 
+    def dumb_agent(self, nim: Nim):
+        '''
+        Agent that takes the smallest possible move
+        '''
+        stats = self.statistics(nim)
+        if stats['num_active_rows'] % 2 == 0:
+            return random.choice(stats['possible_moves'])
+        else:
+            row = stats['shortest_row']
+            return (row, 1)
+
     def aggressive_agent(self, nim: Nim):
         '''
         Agent that takes the largest possible move
         '''
         stats = self.statistics(nim)
-        return max(stats['possible_moves'], key=lambda x: x[1])
+        if stats['num_active_rows'] % 2 == 0:
+            return random.choice(stats['possible_moves'])
+        else:
+            row = stats['longest_row']
+            return (row, nim.rows[row])
+
+        # stats = self.statistics(nim)
+        # return max(stats['possible_moves'], key=lambda x: x[1])
 
     def calculate_fitness(self, genome):
         '''
