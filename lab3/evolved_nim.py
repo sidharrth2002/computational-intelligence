@@ -245,6 +245,13 @@ class BrilliantEvolvedAgent:
         stats = self.statistics(nim)
         return random.choice(stats['possible_moves'])
 
+    def aggressive_agent(self, nim: Nim):
+        '''
+        Agent that takes the largest possible move
+        '''
+        stats = self.statistics(nim)
+        return max(stats['possible_moves'], key=lambda x: x[1])
+
     def calculate_fitness(self, genome):
         '''
         Calculate fitness by playing the genome's strategy against a random agent
