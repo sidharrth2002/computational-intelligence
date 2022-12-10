@@ -164,7 +164,7 @@ class NimReinforcementAgent:
             self.previous_action = None
             player = 0
             while True:
-                # reward = 0
+                reward = 0
                 if player == 0:
                     self.previous_state = deepcopy(self.current_state)
                     # print("Current state: {}".format(self.current_state.rows))
@@ -190,15 +190,14 @@ class NimReinforcementAgent:
                     if winner == 0:
                         # print("Agent won")
                         agent_wins += 1
-                        reward = -1 * int(not self.current_state.goal())
+                        reward = 1
                     else:
                         # print("Random won")
-                        reward = -1 * int(not self.current_state.goal())
+                        reward = -1
                     winners.append(winner)
                     self.update_Q(reward, self.current_state.goal())
                     break
                 else:
-                    reward = -1 * int(not self.current_state.goal())
                     self.update_Q(reward, self.current_state.goal())
 
             # decay epsilon after each episode
