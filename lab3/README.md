@@ -6,7 +6,7 @@ In this notebook, we will play nim-sum using the following agents:
 1. An agent using fixed rules based on nim-sum
 2. An agent using evolved rules
 3. An agent using minmax
-4. An agent using reinforcement learning
+4. An agent using reinforcement learning (both temporal difference learning and monte carlo learning)
 
 ## Rules
 
