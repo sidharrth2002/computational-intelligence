@@ -27,15 +27,9 @@ class MinMaxAgent:
         if all(row == 0 for row in nim.rows):
             return -1 if is_maximizing else 1
         else:
-            print('hahahahahaha')
             return -1
 
-    def montecarlo(self, nim: Nim, depth: int, maximizing_player: bool, max_depth: int = 7):
-        '''
-        Do monte carlo simulation to find the best move
-        '''
-
-
+    @lru_cache(maxsize=1000)
     def minmax(self, nim: Nim, depth: int, maximizing_player: bool, alpha: int = -1, beta: int = 1, max_depth: int = 7):
         '''
         Depth-limited Minimax algorithm to find the best move with alpha-beta pruning and depth limit

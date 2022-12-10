@@ -1,5 +1,6 @@
 
 from copy import deepcopy
+import logging
 import math
 import os
 import numpy as np
@@ -23,8 +24,8 @@ def decay(value, decay_rate):
     return value * decay_rate
 
 
-class NimReinforcementAgentG:
-    def __init__(self, num_rows: int, epsilon: float = 0.1, alpha: float = 0.3, gamma: float = 0.9):
+class NimRLMonteCarloAgent:
+    def __init__(self, num_rows: int, epsilon: float = 0.1, alpha: float = 0.5, gamma: float = 0.9):
         """Initialize agent."""
         self.num_rows = num_rows
         self.epsilon = epsilon
@@ -39,14 +40,17 @@ class NimReinforcementAgentG:
     def get_action(self, state: Nim):
         """Return action based on epsilon-greedy policy."""
         if random.random() < self.epsilon:
-            return random.choice(self.get_possible_actions(state))
+            action = random.choice(self.get_possible_actions(state))
+            if (hash_list(state.rows), action) not in self.G:
+                self.G[(hash_list(state.rows), action)] = random.uniform(1.0, 0.1)
+            return action
         else:
             max_G = -math.inf
             best_action = None
             for r, c in enumerate(state.rows):
                 for o in range(1, c+1):
                     if (hash_list(state.rows), (r, o)) not in self.G:
-                        self.G[(hash_list(state.rows), (r, o))] = random.random()
+                        self.G[(hash_list(state.rows), (r, o))] = random.uniform(1.0, 0.1)
                         G = self.G[(hash_list(state.rows), (r, o))]
                     else:
                         G = self.G[(hash_list(state.rows), (r, o))]
@@ -62,6 +66,7 @@ class NimReinforcementAgentG:
         target = 0
 
         for state, reward in reversed(self.state_history):
+            print(state, reward)
             self.G[state] = self.G.get(state, 0) + self.alpha * (target - self.G.get(state, 0))
             target += reward
 
@@ -114,10 +119,11 @@ class NimReinforcementAgentG:
         if not training:
             print("Win rate: {}".format(agent_wins / rounds))
 
-class NimReinforcementAgentQ:
-    """An agent that learns to play Nim through reinforcement learning."""
-
-    def __init__(self, num_rows: int, epsilon: float = 0.35, alpha: float = 0.35, gamma: float = 0.9):
+class NimRLTemporalDifferenceAgent:
+    """
+    An agent that learns to play Nim through temporal difference learning.
+    """
+    def __init__(self, num_rows: int, epsilon: float = 0.4, alpha: float = 0.3, gamma: float = 0.9):
         """Initialize agent."""
         self.num_rows = num_rows
         self.epsilon = epsilon
@@ -274,85 +280,86 @@ class NimReinforcementAgentQ:
         agent_wins = 0
         winners = []
         for episode in range(rounds):
-            print(f"Episode {episode}")
-            nim = Nim(num_rows=5)
-            self.current_state = nim
-            self.previous_state = None
-            self.previous_action = None
-            player = 0
-            while True:
-                # if training:
-                agent_action = self.update_Q(nim)
-                # else:
-                #     agent_action = self.choose_action(nim)
+        #     print(f"Episode {episode}")
+        #     nim = Nim(num_rows=5)
+        #     self.current_state = nim
+        #     self.previous_state = None
+        #     self.previous_action = None
+        #     player = 0
+        #     while True:
+        #         # if training:
+        #         agent_action = self.update_Q(nim)
+        #         # else:
+        #         #     agent_action = self.choose_action(nim)
 
-                if agent_action is None:
-                    break
-
-                self.current_state.nimming_remove(*agent_action)
-
-                if self.current_state.goal():
-                    agent_wins += 1
-                    self.previous_action = None
-                    self.previous_state = None
-                    break
-
-                opponent_action = agent(self.current_state)
-                self.current_state.nimming_remove(*opponent_action)
-
-        if not training:
-            print(f"Win Rate: {agent_wins / rounds}")
-        #         if player == 0:
-        #             self.previous_state = deepcopy(self.current_state)
-        #             # print("Current state: {}".format(self.current_state.rows))
-        #             self.previous_action = self.get_action(self.current_state)
-        #             if self.previous_action is None:
-        #                 # make random move if no possible actions
-        #                 self.current_state.nimming_remove(
-        #                     *random.choice(self.get_possible_actions(self.current_state)))
-        #             else:
-        #                 # print("RL action: {}".format(self.previous_action))
-        #                 self.current_state.nimming_remove(
-        #                     *self.previous_action)
-        #             player = 1
-        #         else:
-        #             move = agent(self.current_state)
-        #             # print("Random agent move: {}".format(move))
-        #             self.current_state.nimming_remove(*move)
-        #             player = 0
-
-        #         # learning by calculating reward for the current state
-        #         if self.current_state.goal():
-        #             winner = 1 - player
-        #             if winner == 0:
-        #                 # print("Agent won")
-        #                 agent_wins += 1
-        #                 reward = 1
-        #             else:
-        #                 # print("Random won")
-        #                 reward = -1
-        #             winners.append(winner)
-        #             self.update_Q(reward, self.current_state.goal())
+        #         if agent_action is None:
         #             break
-        #         else:
-        #             self.update_Q(reward, self.current_state.goal())
 
-        #     # decay epsilon after each episode
-        #     # self.epsilon = self.epsilon - 0.1 if self.epsilon > 0.1 else 0.1
-        #     # self.alpha *= -0.0005
+        #         self.current_state.nimming_remove(*agent_action)
 
-        #     if training and momentary_testing:
-        #         if episode % 100 == 0:
-        #             print(f"Episode {episode} finished, sampling")
-        #             random_agent = BrilliantEvolvedAgent()
-        #             self.test_against_random(
-        #                 episode, random_agent.random_agent)
+        #         if self.current_state.goal():
+        #             agent_wins += 1
+        #             self.previous_action = None
+        #             self.previous_state = None
+        #             break
+
+        #         opponent_action = agent(self.current_state)
+        #         self.current_state.nimming_remove(*opponent_action)
 
         # if not training:
-        #     print("Reinforcement agent won {} out of {} games".format(
-        #         agent_wins, rounds))
-        # # self.print_best_action_for_each_state()
-        # return winners
+        #     print(f"Win Rate: {agent_wins / rounds}")
+            while True:
+                if player == 0:
+                    self.previous_state = deepcopy(self.current_state)
+                    # print("Current state: {}".format(self.current_state.rows))
+                    self.previous_action = self.get_action(self.current_state)
+                    if self.previous_action is None:
+                        # make random move if no possible actions
+                        self.current_state.nimming_remove(
+                            *random.choice(self.get_possible_actions(self.current_state)))
+                    else:
+                        # print("RL action: {}".format(self.previous_action))
+                        self.current_state.nimming_remove(
+                            *self.previous_action)
+                    player = 1
+                else:
+                    move = agent(self.current_state)
+                    # print("Random agent move: {}".format(move))
+                    self.current_state.nimming_remove(*move)
+                    player = 0
+
+                # learning by calculating reward for the current state
+                if self.current_state.goal():
+                    winner = 1 - player
+                    if winner == 0:
+                        # print("Agent won")
+                        agent_wins += 1
+                        reward = 1
+                    else:
+                        # print("Random won")
+                        reward = -1
+                    winners.append(winner)
+                    self.update_Q(reward, self.current_state.goal())
+                    break
+                else:
+                    self.update_Q(reward, self.current_state.goal())
+
+            # decay epsilon after each episode
+            # self.epsilon = self.epsilon - 0.1 if self.epsilon > 0.1 else 0.1
+            # self.alpha *= -0.0005
+
+            if training and momentary_testing:
+                if episode % 100 == 0:
+                    print(f"Episode {episode} finished, sampling")
+                    random_agent = BrilliantEvolvedAgent()
+                    self.test_against_random(
+                        episode, random_agent.random_agent)
+
+        if not training:
+            print("Reinforcement agent won {} out of {} games".format(
+                agent_wins, rounds))
+        # self.print_best_action_for_each_state()
+        return winners
 
     def choose_action(self, state: Nim):
         """Return action based on greedy policy."""
@@ -377,8 +384,8 @@ class NimReinforcementAgentQ:
 rounds = 5000
 minmax_wins = 0
 
-nim = Nim(num_rows=5)
-agent = NimReinforcementAgentQ(num_rows=5)
+nim = Nim(num_rows=7)
+agent = NimRLTemporalDifferenceAgent(num_rows=7)
 random_agent = BrilliantEvolvedAgent()
 
 def gabriele(state: Nim):
@@ -387,7 +394,7 @@ def gabriele(state: Nim):
     move = max(possible_moves, key=lambda m: (-m[0], m[1]))
     return move
 
-agentG = NimReinforcementAgentG(num_rows=5)
+agentG = NimRLMonteCarloAgent(num_rows=7)
 agentG.battle(random_agent.random_agent)
 
 
@@ -403,6 +410,7 @@ agentG.battle(random_agent.random_agent)
 # TESTING
 print("Testing against random agent")
 agentG.battle(random_agent.random_agent, training=False)
+print(agentG.G)
 # print(agent.Q)
 # plt.plot(winners)
 # plt.savefig("winners.png")
