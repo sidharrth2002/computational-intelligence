@@ -102,31 +102,33 @@ class MinMaxAgent:
         # self.num_moves += 1
         # return best_move
 
-rounds = 10
+if __name__ == "__main__":
 
-minmax_wins = 0
-for i in range(rounds):
-    nim = Nim(num_rows=5)
-    agent = MinMaxAgent()
-    random_agent = BrilliantEvolvedAgent()
-    player = 0
-    while not nim.goal():
-        if player == 0:
-            move = agent.play(nim)
-            print(f"Minmax move {agent.num_moves}: Removed {move[1]} objects from row {move[0]}")
-            print(nim.rows)
-            nim.nimming_remove(*move)
-        else:
-            move = random_agent.random_agent(nim)
-            print(f"Random move {random_agent.num_moves}: Removed {move[1]} objects from row {move[0]}")
-            print(nim.rows)
-            nim.nimming_remove(*move)
-        player = 1 - player
+    rounds = 10
 
-    winner = 1 - player
-    if winner == 0:
-        minmax_wins += 1
-    # player that made the last move wins
-    print(f"Player {winner} wins in round {i+1}!")
+    minmax_wins = 0
+    for i in range(rounds):
+        nim = Nim(num_rows=5)
+        agent = MinMaxAgent()
+        random_agent = BrilliantEvolvedAgent()
+        player = 0
+        while not nim.goal():
+            if player == 0:
+                move = agent.play(nim)
+                print(f"Minmax move {agent.num_moves}: Removed {move[1]} objects from row {move[0]}")
+                print(nim.rows)
+                nim.nimming_remove(*move)
+            else:
+                move = random_agent.random_agent(nim)
+                print(f"Random move {random_agent.num_moves}: Removed {move[1]} objects from row {move[0]}")
+                print(nim.rows)
+                nim.nimming_remove(*move)
+            player = 1 - player
 
-print(f"Minmax wins {minmax_wins} out of {rounds} rounds")
+        winner = 1 - player
+        if winner == 0:
+            minmax_wins += 1
+        # player that made the last move wins
+        print(f"Player {winner} wins in round {i+1}!")
+
+    print(f"Minmax wins {minmax_wins} out of {rounds} rounds")

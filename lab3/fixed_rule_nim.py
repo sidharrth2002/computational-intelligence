@@ -42,9 +42,9 @@ class FixedRuleNim:
             # rules 3 and 4 are fixed (apply for 3 or more piles)
             # different strategies for different rules (situations on the board)
             individual = {
-                'rule_1': [0, random.randint(0, (self.nim_size - 1) * 2)],
-                'rule_2a': [random.randint(0, 1), random.randint(0, (self.nim_size - 1) * 2)],
-                'rule_2b': [random.randint(0, 1), random.randint(0, (self.nim_size - 1) * 2)],
+                'rule_1': [0, random.randint(0, (nim.num_rows - 1) * 2)],
+                'rule_2a': [random.randint(0, 1), random.randint(0, (nim.num_rows - 1) * 2)],
+                'rule_2b': [random.randint(0, 1), random.randint(0, (nim.num_rows - 1) * 2)],
                 'rule_3': [nim.rows.index(min(nim.rows)), min(nim.rows)],
                 'rule_4': [nim.rows.index(max(nim.rows)), max(nim.rows) - min(nim.rows)]
             }
@@ -86,17 +86,17 @@ class FixedRuleNim:
         def engine(nim: Nim):
             stats = self.statistics(nim)
             if stats['num_active_rows'] == 1:
-                print('m1')
+                # print('m1')
                 return Nimply(stats['shortest_row'], random.randint(1, stats['possible_moves'][0][1]))
             elif stats["num_active_rows"] % 2 == 0:
-                print('m2')
+                # print('m2')
                 if max(nim.rows) == 1:
                     return Nimply(stats['longest_row'], 1)
                 else:
                     pile = random.choice([i for i, x in enumerate(nim.rows) if x > 1])
                     return Nimply(pile, nim.rows[pile] - 1)
             elif stats['num_active_rows'] == 3:
-                print('m3')
+                # print('m3')
                 unique_elements = set(nim.rows)
                 # check if 2 rows have the same number of sticks
                 two_rows_with_same_elements = False
@@ -113,7 +113,7 @@ class FixedRuleNim:
                     # do something random
                     return Nimply(*random.choice(stats['possible_moves']))
             elif stats['num_active_rows'] >= 4:
-                print('m4')
+                # print('m4')
                 counter = Counter()
                 for element in nim.rows:
                     counter[element] += 1
@@ -123,7 +123,7 @@ class FixedRuleNim:
                         return Nimply(stats['shortest_row'], max(nim.rows[stats['shortest_row']] - counter.most_common()[1][0], 1))
                 return random.choice(stats['possible_moves'])
             else:
-                print('m5')
+                # print('m5')
                 return random.choice(stats['possible_moves'])
         return engine
 
@@ -134,30 +134,31 @@ class FixedRuleNim:
         stats = self.statistics(nim)
         return random.choice(stats['possible_moves'])
 
-rounds = 20
-evolved_agent_wins = 0
-for i in range(rounds):
-    nim = Nim(5)
-    orig = nim.rows
-    fixedrule = FixedRuleNim()
-    engine = fixedrule.strategy()
+if __name__ == '__main__':
+    rounds = 20
+    evolved_agent_wins = 0
+    for i in range(rounds):
+        nim = Nim(5)
+        orig = nim.rows
+        fixedrule = FixedRuleNim()
+        engine = fixedrule.strategy()
 
-    # play against random
-    player = 0
-    while not nim.goal():
-        if player == 0:
-            move = engine(nim)
-            print('move of player 1: ', move)
-            nim.nimming_remove(*move)
-            player = 1
-            print("After Player 1 made move: ", nim.rows)
-        else:
-            move = fixedrule.random_agent(nim)
-            print('move of player 2: ', move)
-            nim.nimming_remove(*move)
-            player = 0
-            print("After Player 2 made move: ", nim.rows)
-    winner = 1 - player
-    if winner == 0:
-        evolved_agent_wins += 1
-print(f'Fixed rule agent won {evolved_agent_wins} out of {rounds} games')
+        # play against random
+        player = 0
+        while not nim.goal():
+            if player == 0:
+                move = engine(nim)
+                print('move of player 1: ', move)
+                nim.nimming_remove(*move)
+                player = 1
+                print("After Player 1 made move: ", nim.rows)
+            else:
+                move = fixedrule.random_agent(nim)
+                print('move of player 2: ', move)
+                nim.nimming_remove(*move)
+                player = 0
+                print("After Player 2 made move: ", nim.rows)
+        winner = 1 - player
+        if winner == 0:
+            evolved_agent_wins += 1
+    print(f'Fixed rule agent won {evolved_agent_wins} out of {rounds} games')

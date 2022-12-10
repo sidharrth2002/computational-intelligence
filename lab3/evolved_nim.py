@@ -247,14 +247,10 @@ class BrilliantEvolvedAgent:
 
     def dumb_agent(self, nim: Nim):
         '''
-        Agent that takes the smallest possible move
+        Agent that takes one element from the longest row
         '''
         stats = self.statistics(nim)
-        if stats['num_active_rows'] % 2 == 0:
-            return random.choice(stats['possible_moves'])
-        else:
-            row = stats['shortest_row']
-            return (row, 1)
+        return (stats['longest_row'], 1)
 
     def aggressive_agent(self, nim: Nim):
         '''
