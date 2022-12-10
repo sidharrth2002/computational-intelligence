@@ -100,6 +100,11 @@ Although not significant, an `@lru_cache` decorator is applied on the minmax ope
 
 Both temporal difference learning (TDL) and monte carlo learning (MCL) are implemented. In TDL, the Q values are updated after each move. In MCL, the learning is episodic so a goal dictionary is traversed backwards during learning.
 
+<p align="center">
+<img src="./equations.png" width="400" />
+</p>
+<p align="center">Value Update Functions for both approaches (From Huggingface)</p>
+
 #### Using Temporal Difference Learning
 
 
