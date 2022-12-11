@@ -40,6 +40,7 @@ class NimRLMonteCarloAgent:
     def get_action(self, state: Nim):
         """Return action based on epsilon-greedy policy."""
         if random.random() < self.epsilon:
+            print(state.rows)
             action = random.choice(self.get_possible_actions(state))
             if (hash_list(state.rows), action) not in self.G:
                 self.G[(hash_list(state.rows), action)] = random.uniform(1.0, 0.1)
@@ -187,6 +188,9 @@ class NimRLTemporalDifferenceAgent:
     def get_action(self, state: Nim):
         """Return action based on epsilon-greedy policy."""
         if random.random() < self.epsilon:
+            print("Random action")
+            print(state)
+            print(state.rows)
             return random.choice(self.get_possible_actions(state))
         else:
             max_Q = -math.inf
@@ -207,44 +211,46 @@ class NimRLTemporalDifferenceAgent:
                     self.set_Q(hash_list(state.rows), (r, o),
                                np.random.uniform(0, 0.01))
 
-    # def update_Q(self, reward: int, game_over: bool):
-    #     """Update Q-value for previous state and action."""
-
-    #     if game_over:
-    #         self.set_Q(hash_list(self.previous_state.rows), self.previous_action, reward)
-    #     else:
-    #         self.register_state(self.current_state)
-    #         if self.previous_action is not None:
-
-    #             self.set_Q(hash_list(self.previous_state.rows), self.previous_action, self.get_Q(self.previous_state, self.previous_action) +
-    #                        self.alpha * (reward + self.gamma * self.get_max_Q(self.current_state) - self.get_Q(self.previous_state, self.previous_action)))
-
-    def update_Q(self, current_state: Nim):
+    def update_Q(self, reward: int, game_over: bool):
         """Update Q-value for previous state and action."""
 
-        if current_state.goal():
-            self.set_Q(hash_list(self.previous_state.rows), self.previous_action, self.alpha * (-1 - self.get_Q(self.previous_state, self.previous_action)))
-            current_action = self.previous_state = self.previous_action = None
+        if game_over:
+            # self.set_Q(hash_list(self.previous_state.rows), self.previous_action, reward)
+            self.set_Q(hash_list(self.previous_state.rows), self.previous_action, self.get_Q(self.previous_state, self.previous_action) + self.alpha * (reward - self.get_Q(self.previous_state, self.previous_action)))
+
         else:
-            self.register_state(current_state)
-            current_action = self.get_action(current_state)
-
+            self.register_state(self.current_state)
             if self.previous_action is not None:
-                replicated_nim = deepcopy(self.current_state)
-                replicated_nim.nimming_remove(*current_action)
-                if replicated_nim.goal():
-                    reward = 1
-                else:
-                    reward = 0
 
-                self.set_Q(hash_list(self.previous_state.rows), self.previous_action, self.get_Q(self.previous_state, self.previous_action) + self.alpha * (reward + self.gamma * self.get_max_Q(current_state) - self.get_Q(self.previous_state, self.previous_action)))
+                self.set_Q(hash_list(self.previous_state.rows), self.previous_action, self.get_Q(self.previous_state, self.previous_action) +
+                           self.alpha * (reward + self.gamma * self.get_max_Q(self.current_state) - self.get_Q(self.previous_state, self.previous_action)))
 
-                # best_move = self.choose_action(replicated_nim)
-                # self.set_Q(hash_list(self.previous_state.rows), self.previous_action, self.get_Q(self.previous_state, self.previous_action) + self.alpha * (reward + self.gamma * self.get_Q(replicated_nim, best_move) - self.get_Q(self.previous_state, self.previous_action)))
+    # def update_Q(self, current_state: Nim):
+    #     """Update Q-value for previous state and action."""
 
-            self.previous_state, self.previous_action = deepcopy(current_state), current_action
+    #     if current_state.goal():
+    #         self.set_Q(hash_list(self.previous_state.rows), self.previous_action, self.alpha * (-1 - self.get_Q(self.previous_state, self.previous_action)))
+    #         current_action = self.previous_state = self.previous_action = None
+    #     else:
+    #         self.register_state(current_state)
+    #         current_action = self.get_action(current_state)
 
-        return current_action
+    #         if self.previous_action is not None:
+    #             replicated_nim = deepcopy(self.current_state)
+    #             replicated_nim.nimming_remove(*current_action)
+    #             if replicated_nim.goal():
+    #                 reward = 1
+    #             else:
+    #                 reward = 0
+
+    #             self.set_Q(hash_list(self.previous_state.rows), self.previous_action, self.get_Q(self.previous_state, self.previous_action) + self.alpha * (reward + self.gamma * self.get_max_Q(current_state) - self.get_Q(self.previous_state, self.previous_action)))
+
+    #             # best_move = self.choose_action(replicated_nim)
+    #             # self.set_Q(hash_list(self.previous_state.rows), self.previous_action, self.get_Q(self.previous_state, self.previous_action) + self.alpha * (reward + self.gamma * self.get_Q(replicated_nim, best_move) - self.get_Q(self.previous_state, self.previous_action)))
+
+    #         self.previous_state, self.previous_action = deepcopy(current_state), current_action
+
+    #     return current_action
 
     def print_best_action_for_each_state(self):
         for state in self.Q:
@@ -308,13 +314,22 @@ class NimRLTemporalDifferenceAgent:
 
         # if not training:
         #     print(f"Win Rate: {agent_wins / rounds}")
+            print(f"Episode {episode}")
+            nim = Nim(num_rows=5)
+            self.current_state = nim
+            self.previous_state = None
+            self.previous_action = None
+            player = 0
             while True:
+                reward = 0
                 if player == 0:
                     self.previous_state = deepcopy(self.current_state)
                     # print("Current state: {}".format(self.current_state.rows))
+                    print("Current state: {}".format(self.current_state.rows))
                     self.previous_action = self.get_action(self.current_state)
                     if self.previous_action is None:
                         # make random move if no possible actions
+                        print(self.current_state.rows)
                         self.current_state.nimming_remove(
                             *random.choice(self.get_possible_actions(self.current_state)))
                     else:
@@ -375,6 +390,7 @@ class NimRLTemporalDifferenceAgent:
             # make random move if no possible actions
             # print(state.rows)
             # print(self.get_possible_actions(state))
+            print(state.rows)
             return random.choice(self.get_possible_actions(state))
         else:
             # print(f"Best action in {state.rows}: Removed {best_action[1]} objects from row {best_action[0]}")
@@ -395,7 +411,7 @@ def gabriele(state: Nim):
     return move
 
 agentG = NimRLMonteCarloAgent(num_rows=7)
-agentG.battle(random_agent.random_agent)
+agent.battle(random_agent.random_agent)
 
 
 # minimax = MinMaxAgent()
@@ -409,7 +425,7 @@ agentG.battle(random_agent.random_agent)
 
 # TESTING
 print("Testing against random agent")
-agentG.battle(random_agent.random_agent, training=False)
+agent.battle(random_agent.random_agent, training=False)
 # print(agentG.G)
 # print(agent.Q)
 # plt.plot(winners)
