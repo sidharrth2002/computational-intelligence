@@ -373,8 +373,8 @@ class NimRLTemporalDifferenceAgent:
                     best_action = (r, o)
         if best_action is None:
             # make random move if no possible actions
-            print(state.rows)
-            print(self.get_possible_actions(state))
+            # print(state.rows)
+            # print(self.get_possible_actions(state))
             return random.choice(self.get_possible_actions(state))
         else:
             # print(f"Best action in {state.rows}: Removed {best_action[1]} objects from row {best_action[0]}")
@@ -410,7 +410,7 @@ agentG.battle(random_agent.random_agent)
 # TESTING
 print("Testing against random agent")
 agentG.battle(random_agent.random_agent, training=False)
-print(agentG.G)
+# print(agentG.G)
 # print(agent.Q)
 # plt.plot(winners)
 # plt.savefig("winners.png")

@@ -107,10 +107,15 @@ Both temporal difference learning (TDL) and monte carlo learning (MCL) are imple
 
 #### Using Temporal Difference Learning
 
+In TDL, Q values are updated after each move. The Q values are updated using the following equation:
 
+$$Q(s, a) = Q(s, a) + \alpha \cdot (r + \gamma \cdot \max_{a'} Q(s', a') - Q(s, a))$$
+
+TDL exploits the Markov property of the game, where the next state is only dependent on the current state and the action taken. Performance was initially poor, but improved after tuning the hyperparameters (alpha, gamma, epsilon).
 
 #### Using Monte Carlo Learning
 
+In MCL, the learning is episodic so a goal dictionary is traversed backwards. MCL takes a more holistic approach to learning, where rewards are based on every past move.
 
 ### Acknowledgements
 
