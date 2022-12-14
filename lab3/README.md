@@ -10,7 +10,7 @@ In this notebook, we will play nim-sum using the following agents:
 
 ## Rules
 
-We came up with multiple rules, through discussion with friends and through research papers that define fixed rules for playing Nim. There are currently 4 rules that we have implemented. The rules are as follows:
+I came up with multiple rules, through discussion with friends and through research papers that define fixed rules for playing Nim. There are currently 4 rules implemented. The rules are as follows:
 1. If one pile, take x number of sticks from the pile.
 2. If two piles:
     a. If 1 pile has 1 stick, take x sticks
