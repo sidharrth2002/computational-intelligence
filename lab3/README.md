@@ -98,7 +98,7 @@ Although not significant, an `@lru_cache` decorator is applied on the minmax ope
 
 ### Task 3.4: Reinforcement Learning
 
-Both temporal difference learning (TDL) and monte carlo learning (MCL) are implemented. In TDL, the Q values are updated after each move. In MCL, the learning is episodic so a goal dictionary is traversed backwards during learning.
+Both temporal difference learning (TDL) and monte carlo learning (MCL) are implemented. In TDL, the Q values are updated after each move. In MCL, the learning is episodic so a goal dictionary is traversed backwards.
 
 <p align="center">
 <img src="./equations.png" width="400" />
@@ -107,11 +107,17 @@ Both temporal difference learning (TDL) and monte carlo learning (MCL) are imple
 
 #### Using Temporal Difference Learning
 
+##### State Hashing
+
+The state for TDL consists of a key-value dictionary. The representation is: `(the rows in nim, action tuple): Q`. The rows are hashed into a string, with each value separated by a hyphen.
+
 In TDL, Q values are updated after each move. The Q values are updated using the following equation:
 
 $$Q(s, a) = Q(s, a) + \alpha \cdot (r + \gamma \cdot \max_{a'} Q(s', a') - Q(s, a))$$
 
 TDL exploits the Markov property of the game, where the next state is only dependent on the current state and the action taken. Performance was initially poor, but improved after tuning the hyperparameters (alpha, gamma, epsilon).
+
+The best reported win rate is `80%` against a random opponent after 5000 rounds of training at a 0.4 epsilon (exploration rate) and 1000 iterations of testing at 0 epsilon (max exploitation). Learning rate is decayed accordingly.
 
 #### Using Monte Carlo Learning
 
@@ -120,3 +126,5 @@ In MCL, the learning is episodic so a goal dictionary is traversed backwards. MC
 ### Acknowledgements
 
 I have discussed with Karl Wennerstrom and Diego Gasco.
+
+My reinforcement agent initially performed very poorly until I realised that there was a bug in `update_Q`, where I forgot to hash the nim state before checking the presence of the compound key in the Q dictionary. Hence, it was reinitialised every time, effectively rendering random performance and wasting a big chunk of my time 😅.

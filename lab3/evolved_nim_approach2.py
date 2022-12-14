@@ -1,4 +1,4 @@
-# 3.2: Agent Using Evolved Rules (Randomly Chooses Between Strategies)
+# 3.2: Agent Using Evolved Rules (Randomly Chooses Between Strategies Based on Probabilities)
 from itertools import accumulate
 from operator import xor
 import random

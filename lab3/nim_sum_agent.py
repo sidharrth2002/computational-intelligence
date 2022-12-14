@@ -2,11 +2,11 @@ from copy import deepcopy
 from itertools import accumulate
 from operator import xor
 import random
-
+import logging
 from lib import Nim
 
 # 3.1: Agent Using Fixed Rules
-class ExpertFixedRuleAgent:
+class ExpertNimSumAgent:
     '''
     Play the game of Nim using a fixed rule 
     (always leave nim-sum at the end of turn)
@@ -41,5 +41,5 @@ class ExpertFixedRuleAgent:
             move = random.choice(all_possible_moves)
             nim.nimming_remove(*move)
         
-        # print(f"Move {self.num_moves}: Removed {move[1]} objects from row {move[0]}")
+        # logging.info(f"Move {self.num_moves}: Removed {move[1]} objects from row {move[0]}")
         self.num_moves += 1

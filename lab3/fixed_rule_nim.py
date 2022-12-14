@@ -1,6 +1,7 @@
 from collections import Counter
 from copy import deepcopy
 from itertools import accumulate
+import logging
 from operator import xor
 import random
 from typing import Callable
@@ -57,8 +58,8 @@ class FixedRuleNim:
         Similar to Squillero's cooked function to get possible moves
         and statistics on Nim board
         '''
-        # print('In statistics')
-        # print(nim.rows)
+        # logging.info('In statistics')
+        # logging.info(nim.rows)
         stats = {
             'possible_moves': [(r, o) for r, c in enumerate(nim.rows) for o in range(1, c + 1) if nim.k is None or o <= nim.k],
             # 'possible_moves': [(row, num_objects) for row in range(nim.num_rows) for num_objects in range(1, nim.rows[row]+1)],
@@ -86,17 +87,17 @@ class FixedRuleNim:
         def engine(nim: Nim):
             stats = self.statistics(nim)
             if stats['num_active_rows'] == 1:
-                # print('m1')
+                # logging.info('m1')
                 return Nimply(stats['shortest_row'], random.randint(1, stats['possible_moves'][0][1]))
             elif stats["num_active_rows"] % 2 == 0:
-                # print('m2')
+                # logging.info('m2')
                 if max(nim.rows) == 1:
                     return Nimply(stats['longest_row'], 1)
                 else:
                     pile = random.choice([i for i, x in enumerate(nim.rows) if x > 1])
                     return Nimply(pile, nim.rows[pile] - 1)
             elif stats['num_active_rows'] == 3:
-                # print('m3')
+                # logging.info('m3')
                 unique_elements = set(nim.rows)
                 # check if 2 rows have the same number of sticks
                 two_rows_with_same_elements = False
@@ -107,13 +108,13 @@ class FixedRuleNim:
 
                 if len(nim.rows) == 3 and two_rows_with_same_elements:
                     # remove 1 stick from the longest row
-                    print(nim.rows)
+                    logging.info(nim.rows)
                     return Nimply(stats['longest_row'], max(max(nim.rows) - nim.rows[stats['shortest_row']], 1))
                 else:
                     # do something random
                     return Nimply(*random.choice(stats['possible_moves']))
             elif stats['num_active_rows'] >= 4:
-                # print('m4')
+                # logging.info('m4')
                 counter = Counter()
                 for element in nim.rows:
                     counter[element] += 1
@@ -123,7 +124,7 @@ class FixedRuleNim:
                         return Nimply(stats['shortest_row'], max(nim.rows[stats['shortest_row']] - counter.most_common()[1][0], 1))
                 return random.choice(stats['possible_moves'])
             else:
-                # print('m5')
+                # logging.info('m5')
                 return random.choice(stats['possible_moves'])
         return engine
 
@@ -133,6 +134,22 @@ class FixedRuleNim:
         '''
         stats = self.statistics(nim)
         return random.choice(stats['possible_moves'])
+
+    def battle(self, opponent, num_games=1000):
+        '''
+        Battle this agent against another agent
+        '''
+        wins = 0
+        for _ in range(num_games):
+            nim = Nim()
+            while not nim.goal():
+                nim.nimming_remove(*self.play(nim))
+                if sum(nim.rows) == 0:
+                    break
+                nim.nimming_remove(*opponent.play(nim))
+            if sum(nim.rows) == 0:
+                wins += 1
+        return wins
 
 if __name__ == '__main__':
     rounds = 20
@@ -148,17 +165,17 @@ if __name__ == '__main__':
         while not nim.goal():
             if player == 0:
                 move = engine(nim)
-                print('move of player 1: ', move)
+                logging.info('move of player 1: ', move)
                 nim.nimming_remove(*move)
                 player = 1
-                print("After Player 1 made move: ", nim.rows)
+                logging.info("After Player 1 made move: ", nim.rows)
             else:
                 move = fixedrule.random_agent(nim)
-                print('move of player 2: ', move)
+                logging.info('move of player 2: ', move)
                 nim.nimming_remove(*move)
                 player = 0
-                print("After Player 2 made move: ", nim.rows)
+                logging.info("After Player 2 made move: ", nim.rows)
         winner = 1 - player
         if winner == 0:
             evolved_agent_wins += 1
-    print(f'Fixed rule agent won {evolved_agent_wins} out of {rounds} games')
+    logging.info(f'Fixed rule agent won {evolved_agent_wins} out of {rounds} games')

@@ -14,6 +14,7 @@ The rules currently are:
 from collections import Counter, namedtuple
 from copy import deepcopy
 from itertools import accumulate
+import logging
 from operator import xor
 import random
 from typing import Callable
@@ -48,6 +49,7 @@ class BrilliantEvolvedAgent:
             b. If 2 piles have multiple sticks, take x sticks from any pile
         3. If three piles and two piles have the same size, remove all sticks from the smallest pile
         4. If n piles and n-1 piles have the same size, remove x sticks from the smallest pile until it is the same size as the other piles
+        5. If none of the above rules apply, just pick a random pile and take a random number of sticks
         '''
         population = []
         for i in range(population_size):
@@ -75,17 +77,6 @@ class BrilliantEvolvedAgent:
             else:
                 child[rule] = parent2.rules[rule]
         return Genome(child)
-
-        # child = deepcopy(parent1)
-        # for rule in child.rules:
-        #     if random.random() < 0.5:
-        #         child.rules[rule] = deepcopy(parent2.rules[rule])
-        # return child
-
-        # child = {}
-        # for key in parent1.keys():
-        #     child[key] = random.choice([parent1[key], parent2[key]])
-        # return child
 
     def tournament_selection(self, population, tournament_size):
         '''
@@ -144,7 +135,7 @@ class BrilliantEvolvedAgent:
 
         return stats
 
-    def strategy(self, genome: dict) -> Callable:
+    def strategy(self, genome: dict):
         '''
         Returns the best move to make based on the statistics
         '''
@@ -172,7 +163,7 @@ class BrilliantEvolvedAgent:
                     # if there is a 1-stick row, have to choose between wiping it out or taking from the other row
                     if genome.rules['rule_2a'][0] == 0:
                         # wipe out the 1-stick row
-                        print('wiping out 1-stick row')
+                        logging.info('wiping out 1-stick row')
                         pile = [row for row in range(nim.num_rows) if nim.rows[row] == 1][0]
                         return Nimply(pile, 1)
                     else:
@@ -300,7 +291,7 @@ class BrilliantEvolvedAgent:
         for genome in initial_population:
             genome.fitness = self.calculate_fitness(genome)
         for i in range(self.GENERATIONS):
-            # print(f'Generation {i}')
+            # logging.info(f'Generation {i}')
             new_offspring = []
             for j in range(self.OFFSPRING_SIZE):
                 parent1 = random.choice(initial_population)
@@ -312,6 +303,22 @@ class BrilliantEvolvedAgent:
             initial_population = self.select_survivors(initial_population, population_size)
         best_strategy = initial_population[0]
         return best_strategy
+
+    def battle(self, opponent, num_games=1000):
+        '''
+        Battle this agent against another agent
+        '''
+        wins = 0
+        for _ in range(num_games):
+            nim = Nim()
+            while not nim.goal():
+                nim.nimming_remove(*self.play(nim))
+                if sum(nim.rows) == 0:
+                    break
+                nim.nimming_remove(*opponent.play(nim))
+            if sum(nim.rows) == 0:
+                wins += 1
+        return wins
 
 if __name__ == '__main__':
     rounds = 20
@@ -328,17 +335,17 @@ if __name__ == '__main__':
         while not nim.goal():
             if player == 0:
                 move = engine(nim)
-                print('move of player 1: ', move)
+                logging.info('move of player 1: ', move)
                 nim.nimming_remove(*move)
                 player = 1
-                print("After Player 1 made move: ", nim.rows)
+                logging.info("After Player 1 made move: ", nim.rows)
             else:
                 move = brilliantagent.random_agent(nim)
-                print('move of player 2: ', move)
+                logging.info('move of player 2: ', move)
                 nim.nimming_remove(*move)
                 player = 0
-                print("After Player 2 made move: ", nim.rows)
+                logging.info("After Player 2 made move: ", nim.rows)
         winner = 1 - player
         if winner == 0:
             evolved_agent_wins += 1
-    print(f'Evolved agent won {evolved_agent_wins} out of {rounds} games')
+    logging.info(f'Evolved agent won {evolved_agent_wins} out of {rounds} games')

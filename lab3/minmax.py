@@ -4,8 +4,10 @@ from itertools import accumulate
 import math
 from operator import xor
 from evolved_nim import BrilliantEvolvedAgent
-
+import logging
 from lib import Nim
+
+logging.basicConfig(level=logging.INFO)
 
 class MinMaxAgent:
     def __init__(self):
@@ -34,10 +36,10 @@ class MinMaxAgent:
         '''
         Depth-limited Minimax algorithm to find the best move with alpha-beta pruning and depth limit
         '''
-        print("Depth ", depth)
+        logging.info("Depth ", depth)
         if depth == 0 or nim.goal() or depth == max_depth:
-            # print("Depth ", depth)
-            # print("Nim goal ", nim.goal())
+            # logging.info("Depth ", depth)
+            # logging.info("Nim goal ", nim.goal())
             return self.evaluate(nim, maximizing_player)
 
         if maximizing_player:
@@ -50,7 +52,7 @@ class MinMaxAgent:
                     value = max(value, self.minmax(replicated_nim, depth-1, False, alpha, beta))
                     alpha = max(alpha, value)
                     if beta <= alpha:
-                        print("Pruned")
+                        logging.info("Pruned")
                         break
             return value
         else:
@@ -63,7 +65,7 @@ class MinMaxAgent:
                     value = min(value, self.minmax(replicated_nim, depth-1, True, alpha, beta))
                     beta = min(beta, value)
                     if beta <= alpha:
-                        print("Pruned")
+                        logging.info("Pruned")
                         break
             return value
 
@@ -83,18 +85,21 @@ class MinMaxAgent:
         # return the best move
         return possible_moves[0][0], possible_moves[0][1]
 
-        # best_move = None
-        # best_value = -math.inf
-        # for r, c in enumerate(nim.rows):
-        #     for o in range(1, c+1):
-        #         replicated_nim = deepcopy(nim)
-        #         replicated_nim.nimming_remove(r, o)
-        #         value = self.minmax(replicated_nim, 30, True)
-        #         if value > best_value:
-        #             best_value = value
-        #             best_move = (r, o)
-        # self.num_moves += 1
-        # return best_move
+    def battle(self, opponent, num_games=1000):
+        '''
+        Battle this agent against another agent
+        '''
+        wins = 0
+        for _ in range(num_games):
+            nim = Nim()
+            while not nim.goal():
+                nim.nimming_remove(*self.play(nim))
+                if sum(nim.rows) == 0:
+                    break
+                nim.nimming_remove(*opponent.play(nim))
+            if sum(nim.rows) == 0:
+                wins += 1
+        return wins
 
 if __name__ == "__main__":
 
@@ -109,13 +114,13 @@ if __name__ == "__main__":
         while not nim.goal():
             if player == 0:
                 move = agent.play(nim)
-                print(f"Minmax move {agent.num_moves}: Removed {move[1]} objects from row {move[0]}")
-                print(nim.rows)
+                logging.info(f"Minmax move {agent.num_moves}: Removed {move[1]} objects from row {move[0]}")
+                logging.info(nim.rows)
                 nim.nimming_remove(*move)
             else:
                 move = random_agent.random_agent(nim)
-                print(f"Random move {random_agent.num_moves}: Removed {move[1]} objects from row {move[0]}")
-                print(nim.rows)
+                logging.info(f"Random move {random_agent.num_moves}: Removed {move[1]} objects from row {move[0]}")
+                logging.info(nim.rows)
                 nim.nimming_remove(*move)
             player = 1 - player
 
@@ -123,6 +128,6 @@ if __name__ == "__main__":
         if winner == 0:
             minmax_wins += 1
         # player that made the last move wins
-        print(f"Player {winner} wins in round {i+1}!")
+        logging.info(f"Player {winner} wins in round {i+1}!")
 
-    print(f"Minmax wins {minmax_wins} out of {rounds} rounds")
+    logging.info(f"Minmax wins {minmax_wins} out of {rounds} rounds")
